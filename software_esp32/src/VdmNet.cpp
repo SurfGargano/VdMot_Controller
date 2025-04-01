@@ -356,3 +356,31 @@ void CVdmNet::checkWifi()
     }
   }
 }  
+
+
+void CVdmNet::reconnect()
+{
+  UART_DBG.println("Network reconnect");
+  switch (VdmConfig.configFlash.netConfig.eth_wifi) {
+    case interfaceAuto :
+      {
+        ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER); 
+        if (wifiState!=wifiDisabled) {
+          //WiFi.disconnect();
+          WiFi.reconnect();
+        } 
+        break;
+      }
+      case interfaceEth :
+      {
+        ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER); 
+        break;
+      }
+      case interfaceWifi :
+      {
+        //WiFi.disconnect();
+        WiFi.reconnect();
+        break;
+      }
+  }
+}

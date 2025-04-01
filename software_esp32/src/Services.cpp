@@ -137,15 +137,14 @@ void CServices::checkGetNtp()
     #ifdef EnvDevelop
         UART_DBG.println("checkGetNtp : "+String(VdmNet.sntpReachable));
     #endif
-    if (VdmNet.sntpReachable) {
-      if (VdmSystem.getLocalTime(&VdmNet.startTimeinfo)) {
-        if ((VdmNet.startTimeinfo.tm_hour==getNtpHour) && (VdmNet.startTimeinfo.tm_min==getNtpMin)) {
-          VdmNet.setupNtp();
-        }
+   
+    if (VdmSystem.getLocalTime(&VdmNet.startTimeinfo)) {
+      if ((VdmNet.startTimeinfo.tm_hour==getNtpHour) && (VdmNet.startTimeinfo.tm_min==getNtpMin)) {
+        if (!VdmNet.sntpReachable) VdmNet.reconnect();
+        VdmNet.setupNtp();
       }
     }
-    else 
-    {
+    if (!VdmNet.sntpReachable) {
       VdmNet.setupNtp(); 
     }
   }

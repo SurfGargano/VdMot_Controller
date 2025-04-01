@@ -101,6 +101,7 @@ public:
   void setupNtp();
   void checkNet();
   void checkWifi();
+  void reconnect();
   void startBroker();
   void mqttBroker();
   void startSysLog();
