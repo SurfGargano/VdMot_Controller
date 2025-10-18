@@ -71,12 +71,12 @@
 
 #define __TIME_UNIX__         ((__TIME_YEARS__-UNIX_START_YEAR)*SEC_PER_YEAR+       \
                                 GET_LEAP_DAYS*SEC_PER_DAY+                          \
-                                SEC_PER_DAY+                                        \
                                 GET_MONTH2DAYS(__TIME_MONTH__)*SEC_PER_DAY+         \
                                 __TIME_DAYS__*SEC_PER_DAY-SEC_PER_DAY+              \
                                 __TIME_HOURS__*SEC_PER_HOUR+                        \
                                 __TIME_MINUTES__*SEC_PER_MIN+                       \
                                 __TIME_SECONDS__)
-
+/*  SEC_PER_DAY+                                        \*/
 #endif /* COMPILE_TIME_H_ */
+
 

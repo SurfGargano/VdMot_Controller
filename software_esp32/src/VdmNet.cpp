@@ -145,6 +145,7 @@ void CVdmNet::setupEth()
     UART_DBG.print("Server started ");
     UART_DBG.println (serverIsStarted);
   #endif
+   UART_DBG.println("EIP= "+ETH.localIP());
   if (!serverIsStarted) {
     switch (ethState) {
       case wifiIdle :
@@ -167,7 +168,7 @@ void CVdmNet::setupEth()
             UART_DBG.println("Setup Eth cable is connected");
           #endif
           ServerServices.initServer();
-          UART_DBG.println(ETH.localIP());
+          UART_DBG.println("EIP= "+ETH.localIP());
           serverIsStarted=true; 
           ethState=ethConnected;
           networkInfo.interfaceType=currentInterfaceIsEth;
@@ -183,6 +184,10 @@ void CVdmNet::setupEth()
         break;
       }
       case ethConnected : break;
+      {
+        if (networkInfo.ip.toString()=="") ethState=ethIsStarting;
+        break;
+      }
       case ethDisabled : break;
     }
   }  
@@ -195,7 +200,7 @@ void CVdmNet::setupWifi()
   UART_DBG.print("Setup Wifi ");
   UART_DBG.println (wifiState);
   #endif
-
+ UART_DBG.println("WIP= "+WiFi.localIP());
   if (!serverIsStarted) {
     switch (wifiState) {
       case wifiIdle :
@@ -226,6 +231,7 @@ void CVdmNet::setupWifi()
       }
       case wifiIsStarting :
       {
+         UART_DBG.println("WIP= "+WiFi.localIP());
         if (WiFi.status() == WL_CONNECTED) {
           ServerServices.initServer();
           setupNtp();
@@ -243,6 +249,10 @@ void CVdmNet::setupWifi()
         break;
       }
       case wifiConnected : break;
+      {
+        if (WiFi.localIP().toString()=="") wifiState=wifiIsStarting;
+        break;
+      }
       case wifiDisabled : break;
     }
   }
@@ -349,7 +359,7 @@ void CVdmNet::checkWifi()
     UART_DBG.println("Wifi status "+ String(WifiStatus));
   #endif
   if (wifiState==wifiConnected) {
-      if (WifiStatus!= WL_CONNECTED) {
+      if ((WifiStatus!= WL_CONNECTED) || (networkInfo.ip.toString()=="")) {
       WiFi.disconnect();
       WiFi.reconnect();
       UART_DBG.println("Wifi reconnect");

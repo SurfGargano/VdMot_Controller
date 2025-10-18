@@ -89,6 +89,7 @@ typedef struct {
   uint32_t closeCount;
   int32_t deadzoneCount; 
   uint32_t movements;
+  bool tTargetMqttReceived;
 } LASTVALVEVALUES; 
 
 typedef struct {

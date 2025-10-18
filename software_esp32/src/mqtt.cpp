@@ -571,6 +571,7 @@ void CMqtt::callback(char* topic, byte* payload, unsigned int length)
                                 if (VdmConfig.configFlash.valvesControlConfig.valveControlConfig[idx].targetSource==0) {
                                     PiControl[idx].target=strtof(value, NULL);
                                     mqttReceived=true;
+                                    lastValveValues[idx].tTargetMqttReceived=true;
                                 }
                             }
                         } else if (checkTopicName(pt,(char*) "/control/dynOffs")) {
@@ -711,13 +712,13 @@ void CMqtt::publish_valves () {
                 }
                 if (VdmConfig.configFlash.protConfig.protocolFlags.publishSeparate) {
                     // tTarget
-                    if ((lastValveValues[x].tTarget!=PiControl[x].target) || forcePublish || lastValveValues[x].publishTimeOut) {
+                    if (lastValveValues[x].tTargetMqttReceived && ((lastValveValues[x].tTarget!=PiControl[x].target) || forcePublish || lastValveValues[x].publishTimeOut)) {
                         topicstr[len] = '\0';
                         strlcat(topicstr, "/tTarget",sizeof(topicstr));
                         publishValue(topicstr, (char*) (String(PiControl[x].target,1)).c_str(), sizeof(topicstr));
                         lastValveValues[x].tTarget=PiControl[x].target;
                     }
-                    // tTarget
+                    // tValue
                     if ((lastValveValues[x].tValue!=PiControl[x].value) || forcePublish || lastValveValues[x].publishTimeOut) {
                         topicstr[len] = '\0';
                         strlcat(topicstr, "/tValue",sizeof(topicstr));
