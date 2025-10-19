@@ -168,9 +168,9 @@ void CVdmNet::setupEth()
             UART_DBG.println("Setup Eth cable is connected");
           #endif
           ServerServices.initServer();
-          UART_DBG.println("EIP= "+ETH.localIP());
-          serverIsStarted=true; 
+          UART_DBG.println("EIP= "+ETH.localIP()); 
           ethState=ethConnected;
+          checkIPCounter=0;
           networkInfo.interfaceType=currentInterfaceIsEth;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
           networkInfo.ip=ETH.localIP();
@@ -183,9 +183,14 @@ void CVdmNet::setupEth()
         }
         break;
       }
-      case ethConnected : break;
+      case ethConnected : 
       {
-        if (networkInfo.ip.toString()=="") ethState=ethIsStarting;
+        if (networkInfo.ip.toString()=="") {
+          UART_DBG.println("EIP= "+ETH.localIP());
+          if (++checkIPCounter>10) {
+            ethState=ethIsStarting;
+          }
+        } else serverIsStarted=true;
         break;
       }
       case ethDisabled : break;
@@ -225,18 +230,21 @@ void CVdmNet::setupWifi()
         }
         WiFi.begin(VdmConfig.configFlash.netConfig.ssid, VdmConfig.configFlash.netConfig.pwd);
         if (strlen(VdmConfig.configFlash.systemConfig.stationName)>0) WiFi.setHostname(VdmConfig.configFlash.systemConfig.stationName);
-
+        checkIPCounter=0;
         wifiState=wifiIsStarting;
         break;
       }
       case wifiIsStarting :
       {
-         UART_DBG.println("WIP= "+WiFi.localIP());
+        #ifdef netDebugWIFI
+          UART_DBG.println("WIP= "+WiFi.localIP());
+        #endif
         if (WiFi.status() == WL_CONNECTED) {
           ServerServices.initServer();
           setupNtp();
-          UART_DBG.println(WiFi.localIP());
-          serverIsStarted=true; 
+          #ifdef netDebugWIFI
+            UART_DBG.println("WIP= "+WiFi.localIP());
+          #endif 
           wifiState=wifiConnected;
           networkInfo.interfaceType=currentInterfaceIsWifi;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
@@ -248,9 +256,16 @@ void CVdmNet::setupWifi()
         }
         break;
       }
-      case wifiConnected : break;
+      case wifiConnected :
       {
-        if (WiFi.localIP().toString()=="") wifiState=wifiIsStarting;
+        if (WiFi.localIP().toString()=="") {
+          #ifdef netDebugWIFI
+              UART_DBG.println("WIP= "+WiFi.localIP());
+          #endif
+          if (++checkIPCounter>10) {
+            ethState=ethIsStarting;
+          }
+        } else serverIsStarted=true;
         break;
       }
       case wifiDisabled : break;

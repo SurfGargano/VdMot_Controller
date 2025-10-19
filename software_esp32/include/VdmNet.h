@@ -118,6 +118,7 @@ public:
   bool sntpActive;
   bool sntpReachable;
 private :
+  uint8_t checkIPCounter=0;
 };
 
 extern CVdmNet VdmNet;
