@@ -38,47 +38,68 @@
 *END************************************************************************/
 
 
-#pragma once
+#include "helper.h"
 
-#include <Arduino.h>
-#include "VdmNet.h"
-#include "VdmConfig.h"
-#include "globals.h"
-#include "stmApp.h"
 
-class CWeb
+void replace (char* buffer,uint16_t size,char find, char with)
 {
-public:
-  CWeb();
-  void handleFileUpload();
-  void handleFlash();
-  void handleFileDelete();
-  void handleListFiles();
-  String makePage(String title, String contents);
-  void postValvesPos();
-  String getValvesStatus();
-  String getTempsStatus(VDM_TEMPS_CONFIG tempsConfig);
-  String getVoltsStatus(VDM_VOLTS_CONFIG voltsConfig); 
-  String getNetInfo(VDM_NETWORK_INFO networkInfo); 
-  String getNetConfig (VDM_NETWORK_CONFIG netConfig);
-  String getSSIDInfo();
-  String getProtConfig (VDM_PROTOCOL_CONFIG protConfig);
-  String getValvesConfig (VDM_VALVES_CONFIG valvesConfig);
-  String getMotorConfig (MOTOR_CHARS motorConfig);
-  String getValvesControlConfig (VDM_VALVES_CONTROL_CONFIG valvesControlConfig);
-  String getTempsConfig (VDM_TEMPS_CONFIG tempsConfig);
-  String getVoltsConfig (VDM_VOLTS_CONFIG voltsConfig);
-  String getTempSensorsID();
-  String getVoltSensorsID();
-  String getSysDynInfo();
-  String getSysInfo();
-  String getSysConfig (VDM_SYSTEM_CONFIG sysConfig);
-  String getMsgConfig (VDM_MSG_CONFIG msgConfig);
-  String getFSDir();
-  String getStmUpdStatus();
-  bool findIdInValve (uint8_t idx);
-  bool getControlActive();
-};
+  for(int i = 0; i<size;i++)
+	{
+		if(buffer[i] == find)
+		{
+			buffer[i] = with;
+		}
+	}
+}
 
-extern CWeb Web;
+ char* findCharInString (char c,char* pString,size_t size)
+ {
+  char* p = pString;
+  size_t len = 0;
+  while ((*p!=c) && (*p!=0) && (len<size)) {
+    p++;
+    len++;
+  }
+  if ((*p==0) || (len==size)) p=NULL;
+  return (p);
+ }
 
+ char* copyStringUntilChar (char* pString,char* buffer,char c,size_t pSize,size_t bSize)
+ {
+  char* p = pString;
+  char* b = buffer;
+  size_t len = 0;
+  while ((*p!=c) && (*p!=0) && (len<pSize) && (len<bSize)) {
+    *b++=*p++;
+    len++;
+  }
+  if (len>=bSize) return NULL;
+  return p;
+ }
+
+size_t strlcat(char *dst, const char *src, size_t dsize)
+{
+	const char *odst = dst;
+	const char *osrc = src;
+	size_t n = dsize;
+	size_t dlen;
+
+	/* Find the end of dst and adjust bytes left but don't go past end. */
+	while (n-- != 0 && *dst != '\0')
+		dst++;
+	dlen = dst - odst;
+	n = dsize - dlen;
+
+	if (n-- == 0)
+		return(dlen + strlen(src));
+	while (*src != '\0') {
+		if (n != 0) {
+			*dst++ = *src;
+			n--;
+		}
+		src++;
+	}
+	*dst = '\0';
+
+	return(dlen + (src - osrc));	/* count does not include NUL */
+}

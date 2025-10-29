@@ -90,6 +90,7 @@ void CVdmConfig::setDefault()
   memset (configFlash.netConfig.userPwd,0,sizeof(configFlash.netConfig.userPwd));
   memset (configFlash.timeZoneConfig.tz,0,sizeof(configFlash.timeZoneConfig.tz));
   memset (configFlash.timeZoneConfig.tzCode,0,sizeof(configFlash.timeZoneConfig.tzCode));
+  configFlash.netConfig.timeOutNetConnection=5;
   clearConfig();
 }
 
@@ -212,6 +213,7 @@ void CVdmConfig::readConfig()
       prefs.getString(nvsNetSsid,(char*) configFlash.netConfig.ssid,sizeof(configFlash.netConfig.ssid));
     if (prefs.isKey(nvsNetPwd))
       prefs.getString(nvsNetPwd,(char*) configFlash.netConfig.pwd,sizeof(configFlash.netConfig.pwd));
+    configFlash.netConfig.timeOutNetConnection=prefs.getUShort(nvsNetConnectionTO,5);
     if (prefs.isKey(nvsNetUserName))
       prefs.getString(nvsNetUserName,(char*) configFlash.netConfig.userName,sizeof(configFlash.netConfig.userName));
     if (prefs.isKey(nvsNetUserPwd))
@@ -357,6 +359,7 @@ void CVdmConfig::writeConfig(bool reboot)
   prefs.putUChar(nvsNetSysLogEnable,configFlash.netConfig.syslogLevel);
   prefs.putULong(nvsNetSysLogIp,configFlash.netConfig.syslogIp);
   prefs.putUShort(nvsNetSysLogPort,configFlash.netConfig.syslogPort);
+  prefs.putUShort(nvsNetConnectionTO,configFlash.netConfig.timeOutNetConnection);
   prefs.end();
 
   prefs.begin(nvsProtCfg,false);
@@ -483,6 +486,7 @@ void CVdmConfig::postNetCfg (JsonObject doc)
   if (!doc["dns"].isNull()) configFlash.netConfig.dnsIp=doc2IPAddress(doc["dns"]);
   if (!doc["ssid"].isNull()) strncpy(configFlash.netConfig.ssid,doc["ssid"].as<const char*>(),sizeof(configFlash.netConfig.ssid));
   if (!doc["pwd"].isNull()) strncpy(configFlash.netConfig.pwd,doc["pwd"].as<const char*>(),sizeof(configFlash.netConfig.pwd));
+  if (!doc["netCT"].isNull()) configFlash.netConfig.timeOutNetConnection=doc["netCT"];
   if (!doc["userName"].isNull()) strncpy(configFlash.netConfig.userName,doc["userName"].as<const char*>(),sizeof(configFlash.netConfig.userName));
   if (!doc["userPwd"].isNull()) strncpy(configFlash.netConfig.userPwd,doc["userPwd"].as<const char*>(),sizeof(configFlash.netConfig.userPwd));
   if (!doc["timeServer"].isNull()) strncpy(configFlash.netConfig.timeServer,doc["timeServer"].as<const char*>(),sizeof(configFlash.netConfig.timeServer));

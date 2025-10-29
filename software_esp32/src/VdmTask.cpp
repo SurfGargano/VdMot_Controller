@@ -56,6 +56,7 @@ CVdmTask VdmTask;
 CVdmTask::CVdmTask()
 {
   taskIdCheckNet=TASKMGR_INVALIDID;
+  taskIdScanWiFi = TASKMGR_INVALIDID;
   taskIdMqtt=TASKMGR_INVALIDID;
   taskIdApp=TASKMGR_INVALIDID;
   taskIdStm32Ota=TASKMGR_INVALIDID;
@@ -72,10 +73,25 @@ CVdmTask::CVdmTask()
   sendMessenger = false;
 }
 
+void CVdmTask::startScanWifi()
+{
+    if (taskIdScanWiFi==TASKMGR_INVALIDID) {
+        VdmNet.wifiScanState = wifiScanIdle;
+        VdmNet.scanRepeatWifi = 0;
+        #ifdef netDebugWIFI
+            UART_DBG.println("Start scan wifi task");
+        #endif
+        taskIdScanWiFi = taskManager.scheduleFixedRate(1000, [] {            
+            VdmNet.scanWifiTask();           
+        });
+    }
+}
+
 void CVdmTask::init()
 {
+    startScanWifi();
     if (taskIdCheckNet==TASKMGR_INVALIDID) {
-        taskIdCheckNet = taskManager.scheduleFixedRate(1000, [] {            
+        taskIdCheckNet = taskManager.scheduleFixedRate(2000, [] {            
             VdmNet.checkNet();           
         });
     }
@@ -96,9 +112,9 @@ void CVdmTask::startMqtt(uint32_t interval)
 void CVdmTask::startApp()
 {
     if (taskIdStm32Ota!=TASKMGR_INVALIDID) {
-        deleteTask (taskIdStm32Ota);
+        deleteTask (&taskIdStm32Ota);
         delay (1000);       // wait to finish task; 
-        taskIdStm32Ota=TASKMGR_INVALIDID; 
+      //  taskIdStm32Ota=TASKMGR_INVALIDID; 
         Services.restartSystem(false);
     }
     if (taskIdApp==TASKMGR_INVALIDID) { 
@@ -230,9 +246,12 @@ void CVdmTask::startGetFS()
 }
 
 
-void CVdmTask::deleteTask (taskid_t taskId)
+void CVdmTask::deleteTask (taskid_t* taskId)
 {
-  taskManager.cancelTask (taskId);
+  if (*taskId!=TASKMGR_INVALIDID) {
+    taskManager.cancelTask (*taskId);
+    *taskId=TASKMGR_INVALIDID;
+  }
 }
 
 void CVdmTask::disOrEnableTask (taskid_t taskId,bool enabled)

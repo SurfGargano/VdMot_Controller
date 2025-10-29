@@ -241,6 +241,7 @@
 		visibility: collapse;
 	}
 	
+	
    .buttonclass:hover {
 		padding: 0.6em;
 		font-weight: bold;
@@ -503,25 +504,87 @@
 	}
 
 	[type="text"],[type="number"],[type="password"] {
-	--s:15px; /* adjust this to control the size*/
-	/*height:var(--s);
-	aspect-ratio:2/1;
-	padding:calc(var(--s)/5);*/
-	border-radius:8px; 
-	background:
-		white;
+	border-radius:5px; 
+	background:	white;
+	border: thin solid lightgray;
 	-webkit-appearance:none;
 	-moz-appearance:none;
 	appearance:none;
 	cursor:pointer;
 	}
+	[type="text"]:focus,[type="number"]:focus,[type="password"]:focus {
+		outline-color : green;
+	}
 
 	select,[type="button"] {
-		border-radius:8px;
+		border-radius:5px;
+	}
+
+	select {
+
+	/* styling */
+	background-color: white;
+	border: thin solid lightgray;
+	border-radius: 5px;
+	display: inline-block;
+	line-height: 1.0em;
+	padding: 0.2em 1.5em 0.2em 0.1em;
+
+	/* reset */
+	margin: 0;      
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	}
+
+
+	/* arrows */
+
+	select {
+	background-image:
+		linear-gradient(45deg, transparent 50%, gray 50%),
+		linear-gradient(135deg, gray 50%, transparent 50%),
+		radial-gradient(#ddd 70%, transparent 72%);
+	background-position:
+		calc(100% - 11px) calc(0.5em + 0px),
+		calc(100% - 6px) calc(0.5em + 0px),
+		calc(100% - .2em) .1em;
+	background-size:
+		5px 5px,
+		5px 5px,
+		1.2em 1.2em;
+	background-repeat: no-repeat;
+	}
+
+	select:focus {
+	background-image:
+		linear-gradient(45deg, white 50%, transparent 50%),
+		linear-gradient(135deg, transparent 50%, white 50%),
+		radial-gradient(gray 70%, transparent 72%);
+	background-position:
+		calc(100% - 6px) 0.5em,
+		calc(100% - 11px) 0.5em,
+		calc(100% - .2em) .1em;
+	background-size:
+		5px 5px,
+		5px 5px,
+		1.2em 1.2em;
+	background-repeat: no-repeat;
+	border-color: green;
+	outline-color : green;
+	outline: 0;
+	}
+
+	select:-moz-focusring {
+	color: transparent;
+/*	text-shadow: 0 0 0 #000;*/
+	outline-color : green;
 	}
 
 	body {
-	background:gray;
+		background:gray;
 	}
 
 	#Home {background-color: gray;}
@@ -572,7 +635,7 @@ details {
   margin: 0 auto ;
   background: #807f7f;
   margin-bottom: .5rem;
-  box-shadow: 0 .1rem 1rem -.5rem rgba(0,0,0,.4);
+ /* box-shadow: 0 .1rem 1rem -.5rem rgba(0,0,0,.4);*/
   border-radius: 5px;
   overflow: hidden;
 }
@@ -1009,6 +1072,9 @@ details > ul {
 				<th>Wifi SSID</th>
 				<td>
 				<input type="text" maxlength="64" class="form-input" id="netcfg-WifiSSID" name="netcfg-WifiSSID" />
+				<select id="netcfg-ScanSSID" style="width: 20px;">
+				</select>
+				<input type="button" class="buttonclass" id="scanWifiButton" value="Scan" title="Scan wifi for ssid" />
 				</td>
 			</tr>
 			<tr>
@@ -1021,6 +1087,12 @@ details > ul {
 				<th>Re-type wifi password</th>
 				<td>
 				<input type="password" maxlength="64" class="form-input" id="netcfg-WifiPwd2" name="netcfg-WifiPwd2"/>
+				</td>
+			</tr>
+			<tr>
+				<th>Connection timeout (min)</th>
+				<td>
+				<input type="number" min="0" max="255" class="form-input" id="netcfg-netCT" name="netcfg-netCT" title="Time out in minutes for network connection during startup. After the timeout the device will be resetted. 0 = disabled"/>
 				</td>
 			</tr>
 		</table>
@@ -1983,7 +2055,9 @@ Publish on change on server side is not recommended with this option">tValue aft
                     }
                     return ret;
                 };		
-				
+
+		var scanWifiActive=true;
+		var ssidOldString="";
 		var WifiPwdHasChanged=false;
 		var UserPwdHasChanged=false;
 		var brokerPwdHasChanged=false;
@@ -2912,6 +2986,27 @@ Publish on change on server side is not recommended with this option">tValue aft
 				x.style.display = "block";
 			}
 		}
+
+		function fillSSIDList(ssidList) {
+			let ssidDropDown = id('netcfg-ScanSSID');
+			
+			while (ssidDropDown.options.length > 0) {                
+				ssidDropDown.remove(0);
+			}   
+			let option = new Option('  -Select- ', 0);
+			ssidDropDown.options[0] = option;
+			//let i=1;
+			//ssidList.forEach(function (item, index) { 
+			for (let i=1;i<=ssidList.length;i++) {
+				//option = new Option(item, item);
+				let item = ssidList[i-1];
+				option = new Option(item, item);
+				ssidDropDown.options[i] = option;
+			//	i++;
+			};
+		}
+		
+
 		function showSyslogIP(){
 			let x = id("netcfg-syslog-table");
 			let select = id("netcfg-syslog-select").selectedIndex;
@@ -2955,6 +3050,11 @@ Publish on change on server side is not recommended with this option">tValue aft
 			id("netcfg-EthWifi").onclick = function(){
 				showWifi();
 			}
+			id("netcfg-ScanSSID").onchange = function(){
+				if (id("netcfg-ScanSSID").selectedIndex>0) {
+					id("netcfg-WifiSSID").value = id("netcfg-ScanSSID").value;	
+				}
+			}
 			id("netcfg-dhcp").onclick = function(){
 				showDHCP(id("netcfg-dhcp").selectedIndex);
 			}
@@ -2972,6 +3072,15 @@ Publish on change on server side is not recommended with this option">tValue aft
 			};
 			id("valvesDetect").onclick = function(){
 				valvesDetect();
+			};
+			id("scanWifiButton").onclick = async function(){
+				id("scanWifiButton").disabled=true;
+				await postCmd('{"action":"scanWifi"}');
+				scanWifiActive=true;
+				setTimeout(async function() {
+					id("scanWifiButton").disabled=false;
+				},10000);
+				
 			};
 			id("setSysLog").onclick = function(){
 				setSysLog();
@@ -3348,6 +3457,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 					return (false);
 				}
 			}
+			netCfg.netCT = id("netcfg-netCT").value;
 			netCfg.userName = id("netcfg-UserName").value;
 			if (UserPwdHasChanged===true) {
 				netCfg.userPwd = id("netcfg-UserPwd").value;
@@ -3657,6 +3767,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 			await getValvesStatus();
 			await getTempsStatus();
 			await getVoltsStatus();
+			if (scanWifiActive===true) await getSSIDInfo();
 		}
 		
 		function showHomeWarningIcon(homeWarning,minStmVersion)
@@ -4001,7 +4112,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				while (selectElement.options.length > 0) {                
 					selectElement.remove(0);
 				}   
-				let option = new Option(' -Select-', 0);
+				let option = new Option('  -Select-  ', 0);
 				selectElement.options[0] = option;
 				let i=1;
 				dataTempSensorsID.forEach(function (item, index) { 
@@ -4134,7 +4245,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				while (selectElement.options.length > 0) {                
 					selectElement.remove(0);
 				}   
-				let option = new Option(' -Select-', 0);
+				let option = new Option('  -Select-  ', 0);
 				selectElement.options[0] = option;
 				let i=1;
 				dataVoltSensorsID.forEach(function (item, index) { 
@@ -4261,6 +4372,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				id("netcfg-gw").value = dataNetConfig["gw"];
 				id("netcfg-dns").value = dataNetConfig["dns"];
 				id("netcfg-WifiSSID").value = dataNetConfig["ssid"];
+				id("netcfg-netCT").value = dataNetConfig["netCT"];
 				id("netcfg-UserName").value = dataNetConfig["userName"];
 				id("netcfg-TimeServer").value = dataNetConfig["timeServer"];
 				id("netcfg-tz").value = dataNetConfig["tz"];
@@ -4418,6 +4530,19 @@ Publish on change on server side is not recommended with this option">tValue aft
 		async function getVoltsStatus() {
 			const dataVoltsStatus=await getJson("volts");
 			if (dataVoltsStatus) fillVoltsTable(dataVoltsStatus);
+		}
+
+		async function getSSIDInfo() {
+			const ssidInfo=await getJson("ssidinfo");
+			if (ssidInfo) {
+				if ("scanSSID" in ssidInfo) {
+					if (ssidInfo!=ssidOldString) {
+						fillSSIDList(ssidInfo["scanSSID"]);	
+						ssidOldString=ssidInfo;
+					}
+					scanWifiActive=false;
+				}
+			}
 		}
 			
 		async function updateWT32() {

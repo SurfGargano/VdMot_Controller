@@ -72,6 +72,7 @@ typedef struct {
   uint8_t syslogLevel;
   uint32_t syslogIp;
   uint32_t syslogPort;
+  uint8_t timeOutNetConnection;
 } VDM_NETWORK_CONFIG;
 
 typedef struct {
@@ -299,6 +300,7 @@ typedef struct {
 #define nvsNetSysLogEnable          "syslogEnable"
 #define nvsNetSysLogIp              "sysLogIp"
 #define nvsNetSysLogPort            "sysLogPort"
+#define nvsNetConnectionTO           "netConnTO"
 
 #define nvsTZCfg                    "tZCfg"
 #define nvsTZ                       "tZ"

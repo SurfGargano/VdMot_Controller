@@ -43,6 +43,7 @@
 #include <VdmNet.h>
 #include <WiFi.h>
 #include <WiFiClient.h>
+#include "ETH.h"
 
 #include "globals.h"
 #include "mqtt.h"
@@ -90,6 +91,13 @@ CVdmNet::CVdmNet()
 {
 }
 
+static void _eth_phy_power_enable(bool enable)
+{
+    pinMode(ETH_PHY_POWER, OUTPUT);
+    digitalWrite(ETH_PHY_POWER, enable);
+    delay(1);
+}
+
 void CVdmNet::init()
 {
   serverIsStarted = false;
@@ -113,15 +121,23 @@ void CVdmNet::setup()
 {
   
   #ifdef netDebug
-    UART_DBG.print("Interface type ");
-    UART_DBG.println(VdmConfig.configFlash.netConfig.eth_wifi);
+    UART_DBG.print("Net setup : interface type ");
+    UART_DBG.println(String(VdmConfig.configFlash.netConfig.eth_wifi));
+    UART_DBG.print("Net setup : state ");
+    UART_DBG.print(String(ethState));
+    UART_DBG.print(" ");
+    UART_DBG.print(String(wifiState));
+    UART_DBG.print(" ");
+    UART_DBG.println(String(serverIsStarted));
   #endif
   
   switch (VdmConfig.configFlash.netConfig.eth_wifi) {
     case interfaceAuto :
       {
         setupEth(); 
-        if (wifiState!=wifiDisabled) setupWifi();
+        if (wifiState!=wifiDisabled) {
+          setupWifi();
+        }
         break;
       }
       case interfaceEth :
@@ -139,19 +155,17 @@ void CVdmNet::setup()
 
 void CVdmNet::setupEth() 
 {
-  #ifdef netDebug
-    UART_DBG.print("Setup Eth ");
-    UART_DBG.println (ethState);
-    UART_DBG.print("Server started ");
-    UART_DBG.println (serverIsStarted);
-  #endif
-   UART_DBG.println("EIP= "+ETH.localIP());
   if (!serverIsStarted) {
     switch (ethState) {
-      case wifiIdle :
+      case ethIdle :
       {  
         WT32_ETH01_onEvent();
         ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
+        ethState=ethConfig;
+        break;
+      }
+      case ethConfig :
+      {
         if (VdmConfig.configFlash.netConfig.dhcpEnabled==0) {
           ETH.config(VdmConfig.configFlash.netConfig.staticIp, 
           VdmConfig.configFlash.netConfig.gateway, 
@@ -163,14 +177,17 @@ void CVdmNet::setupEth()
       }
       case ethIsStarting :
       {
-        if (WT32_ETH01_isConnected()) {
-          #ifdef netDebug
-            UART_DBG.println("Setup Eth cable is connected");
-          #endif
-          ServerServices.initServer();
-          UART_DBG.println("EIP= "+ETH.localIP()); 
-          ethState=ethConnected;
-          checkIPCounter=0;
+        #ifdef netDebug
+          UART_DBG.print("Eth IsStarting : Eth cable connected = ");
+          UART_DBG.print(String(WT32_ETH01_isConnected()));
+          UART_DBG.print(" EIP= ");
+          UART_DBG.print(ETH.localIP().toString());
+          UART_DBG.print(":");
+          UART_DBG.println(String(ETH.localIP()));
+        #endif
+        if (WT32_ETH01_isConnected() && ((uint32_t) ETH.localIP()!=0)) {
+          checkETHCounter=0;
+          ethResetCounter=0;
           networkInfo.interfaceType=currentInterfaceIsEth;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
           networkInfo.ip=ETH.localIP();
@@ -180,32 +197,112 @@ void CVdmNet::setupEth()
           networkInfo.mac=ETH.macAddress();
           wifiState=wifiDisabled; 
           WiFi.disconnect(); 
+          ethState=ethStarted;
+        } else {
+          if (++checkETHCounter>30) {
+            #ifdef netDebug
+              UART_DBG.println("Eth IsStarting : go to idle ");
+            #endif
+            ethState=ethIdle; 
+            if (VdmConfig.configFlash.netConfig.timeOutNetConnection>0) {
+              if (++ethResetCounter>=VdmConfig.configFlash.netConfig.timeOutNetConnection) {
+                Services.restartSystem(false);
+              }
+            }
+          }  
         }
         break;
       }
-      case ethConnected : 
+      case ethStarted : 
       {
-        if (networkInfo.ip.toString()=="") {
-          UART_DBG.println("EIP= "+ETH.localIP());
-          if (++checkIPCounter>10) {
-            ethState=ethIsStarting;
-          }
-        } else serverIsStarted=true;
+        #ifdef netDebug
+          UART_DBG.println("Eth started : => InitServer");
+        #endif
+        ServerServices.initServer();
+        serverIsStarted=true;
+        ethState=ethIsRunning;
         break;
       }
+      case ethIsRunning : break;
       case ethDisabled : break;
     }
   }  
 }
 
+void CVdmNet::scanWifiTask()
+{
+  #ifdef netDebugWIFI
+    UART_DBG.println("scanWifiTask "+String(wifiScanState));
+  #endif
+  switch (wifiScanState)
+  {
+    case wifiScanIdle:
+    {
+      checkScanWifi=0;
+      WiFi.scanDelete();
+      netWorksSSID=ssidDefaultString;
+      wifiScanState = wifiScanStarted;
+      break;
+    }
+    case wifiScanStarted:
+    {
+      noOfNetworks = WiFi.scanNetworks(true);
+      wifiScanState = wifiScanWaitForScanFinished;
+      break;
+    }
+    case wifiScanWaitForScanFinished:
+    {
+      noOfNetworks=WiFi.scanComplete();
+      #ifdef netDebugWIFI
+        UART_DBG.print("get Wifi : no of SSID => ");
+        UART_DBG.println(String(noOfNetworks));
+      #endif
+      if (noOfNetworks>=0) {
+        getWifi(noOfNetworks);
+        WiFi.scanDelete();
+        wifiScanState = wifiScanFinished;
+      }
+      if (++checkScanWifi>=30) {
+        wifiScanState = wifiScanIdle;
+        if (++scanRepeatWifi>=5) {
+          WiFi.scanDelete();
+          wifiScanState = wifiScanFinished;
+        }
+      }
+      break;
+    }
+    case wifiScanFinished:
+    {
+      break;
+    }
+  }
+}
+
+void CVdmNet::getWifi(int16_t thisNoOfNetworks)
+{ 
+  bool found;
+  DynamicJsonDocument doc(1024);
+  JsonArray ssid = doc.createNestedArray("scanSSID");
+
+  for (uint16_t i = 0; i < thisNoOfNetworks; i++) {
+    found = false;
+    for (uint16_t n=0; n<ssid.size();n++) {
+      if (ssid[n]==WiFi.SSID(i)) found = true;   
+    }
+    if (!found)
+      ssid.add(WiFi.SSID(i));
+  }
+  netWorksSSID="";
+  serializeJson(doc, netWorksSSID);
+  doc.clear();
+  #ifdef netDebugWIFI
+    UART_DBG.println("get Wifi : SSID => "+netWorksSSID);
+  #endif
+} 
+
 
 void CVdmNet::setupWifi() 
 {
-  #ifdef netDebug
-  UART_DBG.print("Setup Wifi ");
-  UART_DBG.println (wifiState);
-  #endif
- UART_DBG.println("WIP= "+WiFi.localIP());
   if (!serverIsStarted) {
     switch (wifiState) {
       case wifiIdle :
@@ -215,37 +312,49 @@ void CVdmNet::setupWifi()
           UART_DBG.println("wifi : no ssid or no pathword");
           break;
         }
-        
         #ifdef netDebugWIFI
-        UART_DBG.print("wifi : ssid ");
-        UART_DBG.println(VdmConfig.configFlash.netConfig.ssid);
-        UART_DBG.print("wifi : pw ");
-        UART_DBG.println(VdmConfig.configFlash.netConfig.pwd);
+          UART_DBG.print("wifi : ssid = ");
+          UART_DBG.print(String(VdmConfig.configFlash.netConfig.ssid));
+          UART_DBG.print(" pw = ");
+          UART_DBG.println(String(VdmConfig.configFlash.netConfig.pwd));
         #endif
         WiFi.mode(WIFI_MODE_STA); 
+        WiFi.begin(VdmConfig.configFlash.netConfig.ssid, VdmConfig.configFlash.netConfig.pwd);
+        checkIPCounter=0;
+        wifiState=wifiConfig;
+        break;
+      }
+      case wifiConfig :
+      {
 		    if (VdmConfig.configFlash.netConfig.dhcpEnabled==0) {
           WiFi.config(VdmConfig.configFlash.netConfig.staticIp, 
           VdmConfig.configFlash.netConfig.gateway, 
           VdmConfig.configFlash.netConfig.mask,VdmConfig.configFlash.netConfig.dnsIp);
         }
-        WiFi.begin(VdmConfig.configFlash.netConfig.ssid, VdmConfig.configFlash.netConfig.pwd);
         if (strlen(VdmConfig.configFlash.systemConfig.stationName)>0) WiFi.setHostname(VdmConfig.configFlash.systemConfig.stationName);
-        checkIPCounter=0;
         wifiState=wifiIsStarting;
         break;
       }
       case wifiIsStarting :
       {
+        String wips = WiFi.localIP().toString();
+        uint32_t wip = WiFi.localIP();
+        uint32_t wifiStatus = WiFi.status();
         #ifdef netDebugWIFI
-          UART_DBG.println("WIP= "+WiFi.localIP());
+          UART_DBG.print("wifiIsStarting : Wifi Status=");
+          UART_DBG.print(String(wifiStatus));
+          UART_DBG.print(" WIP= ");
+          UART_DBG.print(wips);
+          UART_DBG.print(" : ");
+          UART_DBG.println(String(wip));
+          UART_DBG.print("CheckIpCounter : ");
+          UART_DBG.print(String(checkIPCounter));
+          UART_DBG.print(" , ResetCounter : ");
+          UART_DBG.println(String(wifiResetCounter));
         #endif
-        if (WiFi.status() == WL_CONNECTED) {
-          ServerServices.initServer();
-          setupNtp();
-          #ifdef netDebugWIFI
-            UART_DBG.println("WIP= "+WiFi.localIP());
-          #endif 
-          wifiState=wifiConnected;
+        
+        if ((WiFi.status() == WL_CONNECTED) && (wip!=0)) {
+          wifiState=wifiStarted;
           networkInfo.interfaceType=currentInterfaceIsWifi;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
           networkInfo.ip=WiFi.localIP();
@@ -253,19 +362,38 @@ void CVdmNet::setupWifi()
           networkInfo.dnsIp=WiFi.dnsIP();
           networkInfo.mask=WiFi.subnetMask();
           networkInfo.mac=WiFi.macAddress();
+          checkIPCounter=0;
+        } else {
+          if (++checkIPCounter>30) {
+            checkIPCounter=0;
+          //  WiFi.disconnect();
+           // WiFi.reconnect();
+           WiFi.mode(WIFI_MODE_NULL);
+           wifiState=wifiIdle;
+            #ifdef netDebugWIFI
+              UART_DBG.println("wifiIsStarting : Wifi reconnect");
+            #endif
+            if (VdmConfig.configFlash.netConfig.timeOutNetConnection>0) {
+              if (++wifiResetCounter>=VdmConfig.configFlash.netConfig.timeOutNetConnection) {
+                Services.restartSystem(false);
+              }
+            }
+          }
+         
         }
         break;
       }
-      case wifiConnected :
-      {
-        if (WiFi.localIP().toString()=="") {
-          #ifdef netDebugWIFI
-              UART_DBG.println("WIP= "+WiFi.localIP());
-          #endif
-          if (++checkIPCounter>10) {
-            ethState=ethIsStarting;
-          }
-        } else serverIsStarted=true;
+      case wifiStarted : {
+        #ifdef netDebugWIFI
+          UART_DBG.println("Wifi started : => InitServer");
+        #endif
+        ServerServices.initServer();
+        setupNtp();
+        serverIsStarted=true;
+        wifiState=wifiIsRunning;
+        break;
+      }
+      case wifiIsRunning : {
         break;
       }
       case wifiDisabled : break;
@@ -331,8 +459,8 @@ void CVdmNet::mqttBroker()
 void CVdmNet::checkNet() 
 {
   if (serverIsStarted) {
-    VdmTask.deleteTask(VdmTask.taskIdCheckNet);
-
+    UART_DBG.println("checkNet : serverIsStarted");
+    VdmTask.deleteTask(&VdmTask.taskIdCheckNet);
     VdmSystem.getSystemInfo();
     #ifdef netUseMDNS
       if (MDNS.begin("esp32")) {
@@ -345,6 +473,7 @@ void CVdmNet::checkNet()
    
   } else {
     // check if net is connected
+    UART_DBG.println("checkNet : setup");
     setup();
   }
 }
@@ -367,17 +496,48 @@ void CVdmNet::startSysLog()
   }
 }
 
-void CVdmNet::checkWifi()
+void CVdmNet::checkNetConnected()
 {
-  uint8_t WifiStatus = WiFi.status();
-  #ifdef netDebug
-    UART_DBG.println("Wifi status "+ String(WifiStatus));
-  #endif
-  if (wifiState==wifiConnected) {
-      if ((WifiStatus!= WL_CONNECTED) || (networkInfo.ip.toString()=="")) {
+  if (wifiState==wifiIsRunning) {
+    uint8_t wifiStatus = WiFi.status();
+    #ifdef netDebugWIFI
+      UART_DBG.println("checkNetConnected : Wifi status "+ String(wifiStatus));
+    #endif
+    if ((wifiStatus!= WL_CONNECTED) || ((uint32_t) WiFi.localIP()==0)) {
       WiFi.disconnect();
       WiFi.reconnect();
-      UART_DBG.println("Wifi reconnect");
+      #ifdef netDebugWIFI
+        UART_DBG.println("Wifi reconnect");
+      #endif
+      if (VdmConfig.configFlash.netConfig.timeOutNetConnection>0) {
+        if (++wifiResetCounter>=VdmConfig.configFlash.netConfig.timeOutNetConnection) {
+          Services.restartSystem(false);
+        }
+      }
+    } else {
+      wifiResetCounter=0;
+      if (wifiScanState == wifiScanFinished) 
+        VdmTask.deleteTask(&VdmTask.taskIdScanWiFi);
+    }
+  }
+  if (ethState==ethIsRunning) {
+    bool linkStatus=ETH.linkUp();
+    #ifdef netDebug
+      UART_DBG.println("checkNetConnected : eth link status "+ String(linkStatus));
+    #endif
+    if ((!linkStatus) || ((uint32_t) ETH.localIP()==0)) {
+      ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
+      #ifdef netDebug
+        UART_DBG.println("ETH reconnect");
+      #endif
+      if (VdmConfig.configFlash.netConfig.timeOutNetConnection>0) {
+        if (++ethResetCounter>=VdmConfig.configFlash.netConfig.timeOutNetConnection) {
+          Services.restartSystem(false);
+        }
+      }
+    } else {
+      ethResetCounter=0;
+      if (wifiScanState == wifiScanFinished) VdmTask.deleteTask(&VdmTask.taskIdScanWiFi);
     }
   }
 }  
@@ -385,7 +545,9 @@ void CVdmNet::checkWifi()
 
 void CVdmNet::reconnect()
 {
-  UART_DBG.println("Network reconnect");
+  #ifdef netDebug
+    UART_DBG.println("Network reconnect");
+  #endif
   switch (VdmConfig.configFlash.netConfig.eth_wifi) {
     case interfaceAuto :
       {

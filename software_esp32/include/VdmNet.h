@@ -72,11 +72,11 @@
 #define currentInterfaceIsEth  0
 #define currentInterfaceIsWifi 1
 
+#define ssidDefaultString "{}" //"{\"scanSSID\":[]}";
 
-
-enum TWifiState {wifiIdle,wifiIsStarting,wifiConnected,wifiDisabled};
-enum TEthState  {ethIdle,ethIsStarting,ethConnected,ethDisabled};
-
+enum TWifiState {wifiIdle,wifiConfig,wifiIsStarting,wifiStarted,wifiIsRunning,wifiDisabled};
+enum TEthState  {ethIdle,ethConfig,ethIsStarting,ethStarted,ethIsRunning,ethDisabled};
+enum TWifiScanState {wifiScanIdle,wifiScanStarted,wifiScanWaitForScanFinished,wifiScanFinished};
 
 typedef struct {
   uint8_t interfaceType;
@@ -98,9 +98,11 @@ public:
   void setup();
   void setupEth();
   void setupWifi();
+  void getWifi(int16_t thisNoOfNetworks);
+  void scanWifiTask();
   void setupNtp();
   void checkNet();
-  void checkWifi();
+  void checkNetConnected();
   void reconnect();
   void startBroker();
   void mqttBroker();
@@ -108,8 +110,10 @@ public:
   void configTzTime(const char* tz, const char* server1, const char* server2=NULL, const char* server3=NULL);
   bool checkSntpReachable();
    
-  TWifiState wifiState;
-  TEthState ethState;
+  TWifiState wifiState = wifiIdle;
+  TEthState ethState = ethIdle;
+  TWifiScanState wifiScanState = wifiScanIdle;
+  uint8_t scanRepeatWifi=0;
   VDM_NETWORK_INFO networkInfo;
   bool serverIsStarted;
   bool dataBrokerIsStarted;
@@ -117,8 +121,14 @@ public:
   bool syslogStarted;
   bool sntpActive;
   bool sntpReachable;
+  String netWorksSSID=ssidDefaultString;
 private :
   uint8_t checkIPCounter=0;
+  uint8_t wifiResetCounter=0;
+  uint8_t checkETHCounter=0;
+  uint8_t ethResetCounter=0;
+  uint8_t checkScanWifi=0;
+  int16_t noOfNetworks;
 };
 
 extern CVdmNet VdmNet;

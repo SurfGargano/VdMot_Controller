@@ -11,6 +11,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased] - Development
 
+## [1.4.12]
+### Added
+- Webui :       Show wifi ssid scan
+                input timeout for reset if network reconnect failed
+- Network :     wifi ssid scan added
+### Fixed
+- network :     reconnect network if dhcp server is not working at reset from vdmot
+                timeout for reset if network reconnect failed (power on behaviour)
+
 ## [1.4.10]
 ### Added
 - Webui :       Show information if stm failed

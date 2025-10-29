@@ -154,7 +154,7 @@ void CServices::servicesLoop()
 {
   checkServiceValves();  
   checkGetNtp();
-  VdmNet.checkWifi();
+  VdmNet.checkNetConnected();
   checkDS18();
 }
 
@@ -226,7 +226,7 @@ void CServices::restartSystem(bool waitQueueFinished) {
                 VdmTask.taskIdResetSystem = taskManager.scheduleOnce(3000, [] {
                   ESP.restart();
                 });
-                VdmTask.deleteTask(VdmTask.taskIdwaitForFinishQueue);
+                VdmTask.deleteTask(&VdmTask.taskIdwaitForFinishQueue);
           }
         });
     } else {

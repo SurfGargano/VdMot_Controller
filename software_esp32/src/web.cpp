@@ -105,6 +105,7 @@ String CWeb::getNetConfig (VDM_NETWORK_CONFIG netConfig)
                   "\"dns\":\""+ip2String(netConfig.dnsIp)+"\","+
                   "\"userName\":\""+String(netConfig.userName)+"\","+
                   "\"ssid\":\""+String(netConfig.ssid)+"\","+
+                  "\"netCT\":\""+String(netConfig.timeOutNetConnection)+"\","+
                   "\"timeServer\":\""+String(netConfig.timeServer)+"\","+
                   "\"tz\":\""+String(VdmConfig.configFlash.timeZoneConfig.tz)+"\","+
                   "\"tzCode\":\""+String(VdmConfig.configFlash.timeZoneConfig.tzCode)+"\","+
@@ -125,6 +126,11 @@ String CWeb::getNetInfo(VDM_NETWORK_INFO networkInfo)
                   "\"gw\":\""+networkInfo.gateway.toString()+"\","+
                   "\"dns\":\""+networkInfo.dnsIp.toString()+"\"}";
   return result;  
+}
+
+String CWeb::getSSIDInfo()
+{
+  return VdmNet.netWorksSSID;  
 }
 
 String CWeb::getProtConfig (VDM_PROTOCOL_CONFIG protConfig)

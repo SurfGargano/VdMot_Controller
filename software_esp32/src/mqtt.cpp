@@ -1081,6 +1081,7 @@ void CMqtt::sendDiscoveryHA(HA_Item thisHAItem)
 {
     HA_Item haItem=thisHAItem;
     String root="";
+    
     if (VdmConfig.configFlash.protConfig.protocolFlags.publishPathAsRoot) root="/";
     haItem.unique_id = String(VdmConfig.configFlash.systemConfig.stationName)+"."+haItem.unique_id;
     

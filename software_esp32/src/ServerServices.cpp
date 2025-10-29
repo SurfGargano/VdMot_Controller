@@ -172,6 +172,21 @@ void mqttReconnect (JsonObject doc)
   Mqtt.disconnect();
 }
 
+void scanWifi (JsonObject doc)
+{  
+  #ifdef netDebugWIFI
+    UART_DBG.println("server servíces cmd : scan wifi "+String(VdmTask.taskIdScanWiFi));
+  #endif
+  VdmNet.wifiScanState = wifiScanIdle;
+  VdmNet.scanRepeatWifi = 0;
+  if (VdmTask.taskIdScanWiFi==TASKMGR_INVALIDID) {
+      #ifdef netDebugWIFI
+            UART_DBG.println("server servíces cmd : Start scan wifi task");
+      #endif
+      VdmTask.startScanWifi();
+  }
+}
+
 void sysLogSave (JsonObject doc)
 {  
   VdmConfig.writeSysLogValues();
@@ -327,6 +342,11 @@ void handleNetInfo(AsyncWebServerRequest *request)
   request->send(200,aj,Web.getNetInfo(VdmNet.networkInfo));
 }
 
+void handleSSIDInfo(AsyncWebServerRequest *request) 
+{ 
+  request->send(200,aj,Web.getSSIDInfo());
+}
+
 void handleNetConfig(AsyncWebServerRequest *request)
 {
   request->send(200,aj,Web.getNetConfig(VdmConfig.configFlash.netConfig));
@@ -413,10 +433,10 @@ bool handleCmd(JsonObject doc)
 { 
   typedef void (*fp)(JsonObject doc);
   fp  fpList[] = {&restart,&writeConfig,&resetConfig,&restoreConfig,&fileDelete,&setGetFS,
-                  &setClearFS,&scanTSensors,&valvesCalibration,&valvesAssembly,&valvesDetect,&writeValvesControl,&mqttReconnect,&sysLogSave,&discoveryHA} ;
+                  &setClearFS,&scanTSensors,&valvesCalibration,&valvesAssembly,&valvesDetect,&writeValvesControl,&mqttReconnect,&sysLogSave,&discoveryHA,&scanWifi} ;
 
   char const *names[]=  {"reboot", "saveCfg","resetCfg","restoreCfg","fDelete","getFS",
-                        "clearFS","scanTempSensors","vCalib","vAssembly","valvesDetect","vCtrlSave","mqttReconnect","sysLogSave","discoveryHA",NULL};
+                        "clearFS","scanTempSensors","vCalib","vAssembly","valvesDetect","vCtrlSave","mqttReconnect","sysLogSave","discoveryHA","scanWifi",NULL};
   char const **p;
   bool found = false;
 
@@ -502,6 +522,7 @@ void  CServerServices::initServer()
   server.on("/temps",HTTP_GET,[](AsyncWebServerRequest * request) {handleTemps(request);});
   server.on("/volts",HTTP_GET,[](AsyncWebServerRequest * request) {handleVolts(request);});
   server.on("/netinfo",HTTP_GET,[](AsyncWebServerRequest * request) {handleNetInfo(request);});
+  server.on("/ssidinfo",HTTP_GET,[](AsyncWebServerRequest * request) {handleSSIDInfo(request);});
   server.on("/netconfig",HTTP_GET,[](AsyncWebServerRequest * request) {handleNetConfig(request);});
   server.on("/protconfig",HTTP_GET,[](AsyncWebServerRequest * request) {handleProtConfig(request);});
   server.on("/valvesconfig",HTTP_GET,[](AsyncWebServerRequest * request) {handleValvesConfig(request);});

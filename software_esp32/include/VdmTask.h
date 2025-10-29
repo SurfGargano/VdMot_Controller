@@ -56,10 +56,11 @@ class CVdmTask
 public:
   CVdmTask();
   void init();
-  void deleteTask(taskid_t taskId);
+  void deleteTask(taskid_t* taskId);
   void disOrEnableTask (taskid_t taskId,bool enabled);
   bool taskExists (taskid_t taskId);
   void yieldTask (uint16_t ms);
+  void startScanWifi();
   void startMqtt(uint32_t interval);
   void startApp();
   void startStm32Ota(uint8_t command,String thisFileName);
@@ -70,6 +71,7 @@ public:
   void startGetFS();
   
   taskid_t taskIdCheckNet;
+  taskid_t taskIdScanWiFi;
   taskid_t taskIdMqtt;
   taskid_t taskIdApp;
   taskid_t taskIdStm32Ota;

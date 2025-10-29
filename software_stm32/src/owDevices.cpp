@@ -306,6 +306,7 @@ void get_sensordata (unsigned int index, char *buffer, int buflen) {
   }
 
   serializeJson(doc, buffer, buflen);
+  doc.clear();
 }
 
 void temp_command(int command) {
