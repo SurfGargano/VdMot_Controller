@@ -241,54 +241,52 @@
 		visibility: collapse;
 	}
 	
-	
-   .buttonclass:hover {
-		padding: 0.6em;
-		font-weight: bold;
-		background-color: #fff;
-		color: green;
+	button {
+		padding: .4em .8em;
+		background: #3839ab linear-gradient(hsl(0 0% 100% /.2), transparent);
+		border: thin solid rgb(0 0 0 /.1);
+		border-radius: 0 0.4em 0.4em 0.4em;
+		box-shadow: 0 .2em 0.4em rgb(0 0 0 /.5);
+		color: white;
+		text-shadow: 0 -.05em .05em rgb(0 0 0 /.5);
+	/*	font-size: 125%;*/
+		line-height: 1.3;
 	}
 
-	.buttonclass {
-		font-weight: bold;
-		background-color: #79B935;
-		color: #fff;
-		margin: 2px;
-		padding: 0.6em;
-		border-radius: 5px;
-		outline-style: outset;
-		outline-width: thin;
-
-	}
-	.buttonclass:disabled {
-		font-weight: bold;
-		background-color: #79B900;
-		color: #c0c0c0;
+	button.cancel {
+		background-color: #c32e04;
 	}
 
-	.buttonclass1:hover {
-		padding: 0.6em;
-		font-weight: bold;
-		background-color: #fff;
-		color: green;
+	button.ok {
+		background-color: #5a9900;
 	}
 
-	.buttonclass1 {
-		font-weight: bold;
-		background-color: #79B935;
-		color: #fff;
-		margin: 2px;
-		padding: 0.6em;
-		border-radius: 5px;
+	button.cancelRight {
+		background-color: #c32e04;
 		float: right;
-		outline-style: outset;
-		outline-width: thin;
-
 	}
-	.buttonclass1:disabled {
-		font-weight: bold;
-		background-color: #79B900;
-		color: #c0c0c0;
+
+	button.okRight {
+		background-color: #5a9900;
+		float: right;
+	}
+
+	button.icon {
+		background-color: white;
+		line-height: 1.0;
+		padding: .0em .2em;
+	/*	display: block; /* Makes the button a block element */
+  	/*	margin: auto 0; /* Centers horizontally */
+		vertical-align: middle;
+	}
+
+	button:focus,
+	button:hover {
+		box-shadow: 0 .3em 0.6em rgb(0 0 0 / .8);  
+	}
+
+	button:disabled {
+		background-color: gray;	
 	}
 	
 	.buttonDialogClass:hover {
@@ -548,8 +546,8 @@
 		linear-gradient(135deg, gray 50%, transparent 50%),
 		radial-gradient(#ddd 70%, transparent 72%);
 	background-position:
-		calc(100% - 11px) calc(0.5em + 0px),
-		calc(100% - 6px) calc(0.5em + 0px),
+		calc(100% - 10px) calc(0.5em + 0px),
+		calc(100% - 5px) calc(0.5em + 0px),
 		calc(100% - .2em) .1em;
 	background-size:
 		5px 5px,
@@ -564,8 +562,8 @@
 		linear-gradient(135deg, transparent 50%, white 50%),
 		radial-gradient(gray 70%, transparent 72%);
 	background-position:
-		calc(100% - 6px) 0.5em,
-		calc(100% - 11px) 0.5em,
+		calc(100% - 5px) 0.5em,
+		calc(100% - 10px) 0.5em,
 		calc(100% - .2em) .1em;
 	background-size:
 		5px 5px,
@@ -708,8 +706,8 @@ details > ul {
 		</table>
 
 		<footer>
-			<button id="test-pushOver" class="buttonDialogClass">test</button>
-			<button id="close-pushOverParameterDialog" class="buttonDialogClass">close</button>
+			<button id="close-pushOverParameterDialog" class="cancelRight">close</button>
+			<button id="test-pushOver" class="okRight">test</button>
 		</footer>
 		
 	</dialog>
@@ -755,8 +753,8 @@ details > ul {
 		</tr>
 		</table>
 		<footer>
-			<button id="test-email" class="buttonDialogClass">test</button>
-			<button id="close-emailParameterDialog" class="buttonDialogClass">close</button>
+			<button id="close-emailParameterDialog" class="cancelRight">close</button>
+			<button id="test-email" class="okRight">test</button>
 		</footer>
 	</dialog>
 	
@@ -774,8 +772,8 @@ details > ul {
 			</tr>
 		</table>
 		<footer>
-			<button id="ha-Ok" class="buttonDialogClass" value="confirm">Ok</button>
-			<button id="ha-Cancel" class="buttonDialogClass" value="cancel">Cancel</button>
+			<button id="ha-Cancel" class="cancelRight" value="cancel">Cancel</button>
+			<button id="ha-Ok" class="okRight" value="confirm">Ok</button>
 		</footer>
 	</dialog>
 
@@ -788,8 +786,8 @@ details > ul {
 			</td>
 		</table>
 		<footer>
-			<button id="enableScrictTopics-Confirm" class="buttonDialogClass" value="confirm">Save</button>
-			<button id="enableScrictTopics-Cancel" class="buttonDialogClass" value="cancel">Cancel</button>
+			<button id="enableScrictTopics-Cancel" class="cancelRight" value="cancel">Cancel</button>
+			<button id="enableScrictTopics-Confirm" class="okRight" value="confirm">Save</button>
 		</footer>
 	</dialog>
 
@@ -831,8 +829,8 @@ details > ul {
 			<table class="tabTable">
 				<tr>
 					<td>
-						<input type="button" class="buttonclass" id="login-button"  value="Login" title="Login" />
-						<input type="button" class="buttonclass" id="logout-button" value="Logout" title="Logout" />
+						<button class="ok" id="login-button" title="Login">Login</button>
+						<button class="cancel" id="logout-button" title="Logout">Logout</button>
 					</td>
 				</tr>
 			</table>
@@ -1074,7 +1072,7 @@ details > ul {
 				<input type="text" maxlength="64" class="form-input" id="netcfg-WifiSSID" name="netcfg-WifiSSID" />
 				<select id="netcfg-ScanSSID" style="width: 20px;">
 				</select>
-				<input type="button" class="buttonclass" id="scanWifiButton" value="Scan" title="Scan wifi for ssid" />
+				<button class="ok" id="scanWifiButton" title="Scan wifi for ssid">Scan</button>
 				</td>
 			</tr>
 			<tr>
@@ -1152,7 +1150,7 @@ details > ul {
 		<table class="tabTable">
 			<tr>
 			<td>
-			<input type="button" class="buttonclass" id="setSysLog" value="Set" title="Set syslog server values" />
+			<button class="ok" id="setSysLog" title="Set syslog server values">Set</button>	
 			</td>
 			</tr>
 		</table>
@@ -1275,7 +1273,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 			<tr>
 				<details id="protcfg-BrokerDHA">
 				<summary>Home Assistant</summary>
-					<input type="button" class="buttonclass" id="protcfg-discoverHA" name="theGroupP22" value="Discovery" title="Discovery Home Assistant">
+					<button class="ok" id="protcfg-discoverHA" name="theGroupP22"  title="Discovery Home Assistant">Discovery</button>
 				</details>
 			</tr>
 		</table>
@@ -1290,7 +1288,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 		<table class="tabTable">
 			<tr>
 			<td>
-			<input type="button" class="buttonclass" id="valvesDetect" value="Scan" title="Detect valves" />
+			<button class="ok" id="valvesDetect" title="Detect valves">Scan</button>
 			</td>
 			</tr>
 		</table>
@@ -1329,8 +1327,8 @@ Publish on change on server side is not recommended with this option">tValue aft
 				<legend>Assembly/Calibration</legend>	
 				<label><select id="valvesAsmCalib-select"></select></label>
 				<label>
-					<input type="button" class="buttonclass" id="valvesAssembly" value="Assembly" title="Set valves to assembly position">
-					<input type="button" class="buttonclass" id="valvesStartCalib" value="Calib" title="Start manual calibration of valves" />
+					<button class="ok" id="valvesAssembly" title="Set valves to assembly position">Assembly</button>
+					<button class="ok" id="valvesStartCalib" title="Start manual calibration of valves">Calib</button>
 				</label>	
 			</fieldset>
 			</table>
@@ -1345,7 +1343,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				<table id="cfgTSensorTable1" class="tabTable">
 				<tr>
 					<td>
-					<input type="button" class="buttonclass" id="tempSensorScan" value="Scan" title="Scan onewire sensors" />
+					<button class="ok" id="tempSensorScan" title="Scan onewire sensors">Scan</button>
 					</td>
 					<td>
 					<select id="sysCfg-CF">
@@ -1383,9 +1381,12 @@ Publish on change on server side is not recommended with this option">tValue aft
 				<tr>
 				<fieldset class="checkboxgroup1" style="height:5em;" id="cfgMessengerFieldSet1">
 					<legend>Active</legend>
-					<label><input type="checkbox" id="MsgPOCfg-Active" name="theGroup">Pushover <input type="button" class="buttonclass1" id="msgCfg-PushOverParam" style="height:2em;" value="..." title="Push over parameter" /></label>
-					<label><input type="checkbox" id="MsgEmailCfg-Active" name="theGroup">Email <input type="button" class="buttonclass1" id="msgCfg-emailParam" style="height:2em;" value="..." title="Email parameter" /></label>
+					<label><input type="checkbox" id="MsgPOCfg-Active" name="theGroup">Pushover <button class="ok" id="msgCfg-PushOverParam" style="height:2em;float: right;" title="Push over parameter">...</button></label>
+					<label><input type="checkbox" id="MsgEmailCfg-Active" name="theGroup">Email <button class="ok" id="msgCfg-emailParam" style="height:2em;float: right;" title="Email parameter" >...</button></label>
 				</fieldset>
+				</tr>
+
+				<tr>
 				<fieldset class="checkboxgroup1" style="height:14em;" id="cfgValvesTableFieldSet2">
 					<legend>Send reasons</legend>	
 					<label><input type="checkbox" id="MsgCfg-ReasonValveFailed" name="theGroup" title="If a time out occured. Maybe the motor is dropped">Valve failed </label>
@@ -1417,9 +1418,8 @@ Publish on change on server side is not recommended with this option">tValue aft
 			</tr>
 			<tr>
 				<td>
-				<input type="button" class="buttonclass" id="fileDelete" value="Delete file" title="Delete selected file"/>
-				
-				<input type="button" class="buttonclass" id="formatFS" value="Format FS" title="Format FS"/>
+				<button class="ok" id="fileDelete" title="Delete selected file">Delete file</button>
+				<button class="ok" id="formatFS" title="Format FS">Format FS</button>
 				</td>
 
 			</tr>
@@ -1431,23 +1431,23 @@ Publish on change on server side is not recommended with this option">tValue aft
 		<table id="sysConfig" class="tabTable">
 			<tr>
 				<td>
-                <input type="button" class="buttonclass" id="sysReboot" value="Reboot system" title="Reboot system" />
+                <button class="ok" id="sysReboot" title="Reboot system">Reboot system</button>
                 </td>
 			</tr>
 			<tr>
                 <td>
-                <input type="button" class="buttonclass" id="saveConfig" value="Save config" title="Save all settings."/>
+                <button class="ok" id="saveConfig" value="" title="Save all settings.">Save config</button>
                 </td>
             </tr>
 			<tr></tr>
 			<tr>
                 <td>
-                <input type="button" class="buttonclass" id="factoryRestore" value="Restore factory default settings" title="Reset config including network settings."/>
+                <button class="ok" id="factoryRestore" title="Reset config including network settings.">Restore factory default settings</button>
                 </td>
             </tr>
 			<tr>
 				<td>
-                <input type="button" class="buttonclass" id="resetConfig" value="Reset config" title="Reset config excluding network settings." />
+                <button class="ok" id="resetConfig" title="Reset config excluding network settings.">Reset config</button>
                 </td>
 			</tr>	
 		</table>
@@ -1464,7 +1464,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 			<table class="tabTable">
 			<tr>
 				<td>
-				<input type="button" class="buttonclass" id="saveVCtrlConfig" value="Save valve control settings" title="Save settings for valves control."/>
+				<button class="ok" id="saveVCtrlConfig" title="Save settings for valves control.">Save valve control settings</button>
 				</td>
 				<td>
 					<label>Heat Control</label>
@@ -1492,12 +1492,12 @@ Publish on change on server side is not recommended with this option">tValue aft
 		<table id="sysUpdate" class="tabTable">
 			<tr>
 				<td>
-                <input type="button" class="buttonclass" id="update-WT32" value="Update WT32" title="Update WT32" />
+                <button class="ok" id="update-WT32" title="Update WT32">Update WT32</button>
                 </td>
 			</tr>
 			<tr>
 				<td>
-                <input type="button" class="buttonclass" id="update-STM32" value="Update STM32" title="Update WT32" />
+                <button class="ok" id="update-STM32" value="" title="Update WT32">Update STM32</button>
                 </td>
 			</tr>
 		</table>
@@ -1562,9 +1562,9 @@ Publish on change on server side is not recommended with this option">tValue aft
 			
 			<tr>
 				<td>
-					<input type="button" class="buttonclass" id="loginDialogOk" value="ok"/>
+					<button class="ok" id="loginDialogOk">Ok</button>
 				</td><td>
-					<input type="button" class="buttonclass" id="loginDialogCancel" value="cancel"/>
+					<button class="cancel" id="loginDialogCancel">Cancel</button>
 				</td>
 			</tr>
 			<tr>
@@ -2532,7 +2532,8 @@ Publish on change on server side is not recommended with this option">tValue aft
 		}
 		
 		function makeCfgTempTable() {
-			const cfgTempTable = id('cfgTSensorTable');	  
+			const cfgTempTable = id('cfgTSensorTable');	 
+
 			for (let row=0; row<NoOfMaxTSensors+1; row++) { 
 				const thisRow = cfgTempTable.insertRow(0);
 				for (let i = 0; i < 5; i++) {
@@ -2573,18 +2574,24 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:150px;');
 				el.setAttribute('onchange', 'fillTSensorIDSelect()');
 				thiscell.appendChild(el);
-				el = document.createElement('input');
-				el.setAttribute('type', 'button');
+
+				let image = document.createElement('img'); 
+				image.src = 'trash.ico'; 
+				image.style.width = 'auto'; 
+				image.style.height = '16px'; 
+				el = document.createElement('button');
+				el.setAttribute('class', 'icon');
 				el.setAttribute('name', 'cfgTBtn' + row);
 				el.setAttribute('id', 'cfgTBtn' + row);
-				el.setAttribute('style','width:20px;');
-				el.setAttribute('value','x');
+				el.setAttribute('title','Delete');
 				el.setAttribute('onclick', 'deleteTID(this.id)');
+				el.appendChild(image);
 				thiscell.appendChild(el);
+
 				el = document.createElement('select');
 				el.setAttribute('name', 'cfgTSel' + row);
 				el.setAttribute('id', 'cfgTSel' + row);
-				el.setAttribute('style','width:20px;');
+				el.setAttribute('style','width:1.6em;height:1.6em;');
 				el.setAttribute('onchange', 'copyTIDFromSelect(this.id)');
 				thiscell.appendChild(el);
 			}
@@ -2615,12 +2622,14 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:80px;');
 				el.setAttribute('maxlength' , '10');
 				thiscell.appendChild(el);
+
 				thiscell = cfgVoltTable.rows[row].cells[2];
 				el = document.createElement('input');
 				el.setAttribute('type', 'checkbox');
 				el.setAttribute('name', 'cfgVoltActive' + row);
 				el.setAttribute('id', 'cfgVoltActive' + row);
 				thiscell.appendChild(el);
+
 				thiscell = cfgVoltTable.rows[row].cells[3];
 				el = document.createElement('input');
 				el.setAttribute('type', 'number');
@@ -2632,6 +2641,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:60px;');
 				thiscell.appendChild(el);
 				thiscell = cfgVoltTable.rows[row].cells[4];
+
 				el = document.createElement('input');
 				el.setAttribute('type', 'number');
 				el.setAttribute('name', 'cfgVoltFactor' + row);
@@ -2642,6 +2652,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:60px;');
 				thiscell.appendChild(el);
 				thiscell = cfgVoltTable.rows[row].cells[5];
+
 				el = document.createElement('input');
 				el.setAttribute('type', 'text');
 				el.setAttribute('name', 'cfgVoltUnit' + row);
@@ -2651,6 +2662,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:55px;');
 				thiscell.appendChild(el);
 				thiscell = cfgVoltTable.rows[row].cells[6];
+
 				el = document.createElement('input');
 				el.setAttribute('type', 'text');
 				el.setAttribute('name', 'cfgVoltID' + row);
@@ -2658,18 +2670,24 @@ Publish on change on server side is not recommended with this option">tValue aft
 				el.setAttribute('style','width:150px;');
 				el.setAttribute('onchange', 'fillVSensorIDSelect()');
 				thiscell.appendChild(el);
-				el = document.createElement('input');
-				el.setAttribute('type', 'button');
+
+				let image = document.createElement('img'); 
+				image.src = 'trash.ico'; 
+				image.style.width = 'auto'; 
+				image.style.height = '16px'; 
+				el = document.createElement('button');
+				el.setAttribute('class', 'icon');
 				el.setAttribute('name', 'cfgVoltBtn' + row);
 				el.setAttribute('id', 'cfgVoltBtn' + row);
-				el.setAttribute('style','width:20px;');
-				el.setAttribute('value','x');
+				el.setAttribute('title','Delete');
 				el.setAttribute('onclick', 'deleteVID(this.id)');
+				el.appendChild(image);
 				thiscell.appendChild(el);
+
 				el = document.createElement('select');
 				el.setAttribute('name', 'cfgVoltSel' + row);
 				el.setAttribute('id', 'cfgVoltSel' + row);
-				el.setAttribute('style','width:20px;');
+				el.setAttribute('style','width:1.6em;height:1.6em;');
 				el.setAttribute('onchange', 'copyVIDFromSelect(this.id)');
 				thiscell.appendChild(el);
 			}
@@ -3006,6 +3024,14 @@ Publish on change on server side is not recommended with this option">tValue aft
 			};
 		}
 		
+		async function getSSID() {
+			id("scanWifiButton").disabled=true;
+			await postCmd('{"action":"scanWifi"}');
+			scanWifiActive=true;
+			setTimeout(async function() {
+				id("scanWifiButton").disabled=false;
+			},10000);		
+		};
 
 		function showSyslogIP(){
 			let x = id("netcfg-syslog-table");
@@ -3074,13 +3100,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				valvesDetect();
 			};
 			id("scanWifiButton").onclick = async function(){
-				id("scanWifiButton").disabled=true;
-				await postCmd('{"action":"scanWifi"}');
-				scanWifiActive=true;
-				setTimeout(async function() {
-					id("scanWifiButton").disabled=false;
-				},10000);
-				
+				await getSSID();
 			};
 			id("setSysLog").onclick = function(){
 				setSysLog();

@@ -185,6 +185,7 @@ void CWT32AsyncOTA::begin(AsyncWebServer *server, const char* userName, const ch
        
 void  CWT32AsyncOTA::restart() 
 {
+    delay (2000);
     ESP.restart();
 }
 

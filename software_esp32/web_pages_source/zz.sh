@@ -11,6 +11,7 @@ gzip -9 -f -c ./h/window_gray.png > ../web_pages/window_gray.png
 gzip -9 -f -c ./h/blank.png > ../web_pages/blank.png
 gzip -9 -f -c ./h/warning_yellow.png > ../web_pages/warning_yellow.png
 gzip -9 -f -c ./h/warning_red.png > ../web_pages/warning_red.png
+gzip -9 -f -c ./h/trash32.ico > ../web_pages/trash.ico
 //cp ./h/index.html ../web_pages/index.html
 echo "making tfs files..."
 ./mktfs ../web_pages
