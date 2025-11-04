@@ -75,7 +75,7 @@
 #define ssidDefaultString "{}" //"{\"scanSSID\":[]}";
 
 enum TWifiState {wifiIdle,wifiConfig,wifiIsStarting,wifiStarted,wifiIsRunning,wifiDisabled};
-enum TEthState  {ethIdle,ethConfig,ethIsStarting,ethStarted,ethIsRunning,ethDisabled};
+enum TEthState  {ethIdle,ethBegin,ethConfig,ethIsStarting,ethStarted,ethIsRunning,ethDisabled};
 enum TWifiScanState {wifiScanIdle,wifiScanStarted,wifiScanWaitForScanFinished,wifiScanFinished};
 
 typedef struct {

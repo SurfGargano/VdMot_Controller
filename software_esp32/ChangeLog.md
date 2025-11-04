@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Webui :       Show wifi ssid scan
                 additional input for timeout to reset if network reconnect failed
                 refactoring and change layout of buttons
+                dock-menu (drag-n-drop)
 - Network :     wifi ssid scan added
 ### Fixed
 - network :     reconnect network if dhcp server is not working at reset from vdmot

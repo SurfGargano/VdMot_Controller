@@ -69,8 +69,23 @@
 	  display: none;
 	  padding: 10px 20px;
 	  height:100%;
+	  padding: 20px;
 	}
 	
+	.tabContent.menu-top  {
+		margin-left:0px;
+		margin-top:50px;	
+	}
+	.tabContent.menu-left  {
+		margin-left:150px;
+		margin-top:0px;	
+	}
+
+	.tabContent.menu-compact-left {
+		margin-left:50px;
+		margin-top:0px;	
+	}
+
 	/* Style tab links */
 	.tabLink {
 	  background-color: #555;
@@ -676,6 +691,128 @@ details > ul {
   margin-bottom: 0;
 }
 
+/* menu */
+
+.menu {
+            position: fixed;
+            background: #333;
+            color: white;
+            cursor: grab;
+            z-index: 1000;
+            /*transition: width 0.3s ease, height 0.3s ease;*/
+			transition: width 0.3s ease, height 0.3s ease, top 0.3s ease, left 0.3s ease;
+        }
+        .menu.left {
+            top: 0;
+            left: 0;
+            width: 125px;
+            height: 100%;
+            padding-top: 50px;
+        }
+        .menu.top {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 0px 15px 0px 25px;
+        }
+        .menu.compact.left {
+            width: 40px;
+        }
+        .menu.compact.top {
+            width: 100%;
+        }
+        .menu.compact a span:not(.icon) {
+            display: none;
+        }
+        .menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px 5px 10px 0px;
+            text-decoration: none;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .menu a .icon {
+            margin-right: 15px;
+			padding: 0px 15px 0px 5px;
+            width: 20px;
+            display: inline-block;
+            text-align: center;
+			font-size: 24px;
+        }
+        .menu.compact a .icon {
+            margin-right: 10px;
+        }
+        .menu a:hover {
+            background: #575757;
+        }
+        .toggle-icons, .toggle-icons-top{ /* , .hamburger*/
+            position: absolute;
+            background: #ffcc00;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            z-index: 1100;
+        }
+        .toggle-icons {
+            top: 20px;
+            right: 0;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+			clip-path: polygon(0 50%, 100% 0, 100% 100%);
+            
+        }
+        .menu.compact .toggle-icons {
+            clip-path: polygon(100% 50%, 0 0, 0 100%);
+        }
+        .toggle-icons-top {
+            bottom: 0;
+            left: 15px;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 15px;
+			clip-path: polygon(50% 0, 0 100%, 100% 100%);
+           
+        }
+        .menu.compact .toggle-icons-top {
+            clip-path: polygon(50% 100%, 0 0, 100% 0);
+        }
+        .hamburger {
+            top: 10px;
+            left: 10px;
+          display: none;
+        }
+		.toggle-view {
+            position: fixed;
+            bottom: 10px;
+            left: 0px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1100;
+			padding: 10px;
+        }
+		/*
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            .menu {
+                transform: translateX(-100%);
+            }
+            .menu.active {
+                transform: translateX(0);
+            }
+        }
+*/
 
 </style>
 
@@ -791,18 +928,20 @@ details > ul {
 		</footer>
 	</dialog>
 
-
-
-	<div class="topNav" id="mytopNav">
-	  <a href="#home" class="tabLink" id="defaultOpen" name="Home" onclick="openPage('Home', this, 'red')">Home<img id="homeImg" src="" style="margin-left:5px;height:16px;width:16px"></a>
-	  <a href="#status" class="tabLink" id="statusOpen" name="Status" style ="display:none"; onclick="openPage('Status', this, 'green');">Status<img id="statusImg" src="" style="margin-left:5px;height:16px;width:16px"></a>
-	  <a href="#network" class="tabLink" id="networkOpen" name="Network" style ="display:none" onclick="openPage('Network', this, 'blue')">Network</a>
-	  <a href="#config" class="tabLink" id="configOpen" name="Config" style ="display:none" onclick="openPage('Config', this, 'gray')">Config</a>
-	  <a href="#control" class="tabLink" id="controlOpen" name="Control" style ="display:none" onclick="openPage('Control', this, 'gray')">Control</a>
-	  <a href="#update" class="tabLink" id="updateOpen" name="Update" style ="display:none" onclick="openPage('Update', this, 'cyan')">Update</a>
-	  <a href="#about" class="tabLink" id="aboutOpen" name="About" onclick="openPage('About', this, 'darkgray')">About</a>
-	  <a href="javascript:void(0);" class="icon" onclick="resptopNav()">&#9776;</a>
-	</div>
+	<button class="hamburger" id="hamburger" style="visibility:hidden">☰</button>
+	<button class="toggle-view" id="toggleView" title="Toggle view">🔁</button>
+	<nav class="menu left" id="menu" draggable="true">
+		<button class="toggle-icons" id="toggleIcons"></button>
+		<button class="toggle-icons-top" id="toggleIconsTop"></button>
+		<a href="#home" id="defaultOpen" name="Home" onclick="openPage('Home', this, 'red')"><span class="icon" title="Home">🏠</span><span>Home</span><img id="homeImg" src="" style="margin-left:3px;height:16px;width:16px"></a>
+		<a href="#status" id="statusOpen" name="Status" onclick="openPage('Status', this, 'green');"><span class="icon" title="Status">ℹ️</span><span>Status</span><img id="statusImg" src="" style="margin-left:3px;height:16px;width:16px"></a>
+		<a href="#network" id="networkOpen" name="Network" onclick="openPage('Network', this, 'gray')"><span class="icon" title="Network">&#128279</span><span>Network</span></a>
+		<a href="#config" id="configOpen" name="Config" onclick="openPage('Config', this, 'gray')"><span class="icon" title="Config">⚙️</span><span>Config</span></a>
+		<a href="#control" id="controlOpen" name="Control" onclick="openPage('Control', this, 'red')"><span class="icon" title="Control">&#128256;</span><span>Control</span></a>
+		<a href="#update" id="updateOpen" name="Update" onclick="openPage('Update', this, 'green');"><span class="icon" title="Update">&#128260;</span><span>Update</span></a>
+		<a href="#about" id="aboutOpen" name="About" onclick="openPage('About', this, 'gray')"><span class="icon" title="About">&#128129;</span><span>About</span></a>
+	</nav>
+	
 
 	<div id="spinner"></div>
 
@@ -1533,7 +1672,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 		along with this program.  If not, see http://www.gnu.org/licenses/.
 		</p>
 		<p>
-		Copyright (C) 2021-2024 Lenti84  https://github.com/Lenti84/VdMot_Controller
+		Copyright (C) 2021-2025 Lenti84  https://github.com/Lenti84/VdMot_Controller
 		</p>	
 		<p>
 		Contributor : SurfGargano
@@ -2097,6 +2236,57 @@ Publish on change on server side is not recommended with this option">tValue aft
 	    const tabImageSrc = ["","warning_yellow.png","warning_red.png"];
 		const haDialog = id("haDialog");
 		const enableStrictTopicsDialog = id("enableStrictTopicsDialog");
+//menu
+		const menu = id('menu');
+        const toggleIcons = id('toggleIcons');
+        const toggleIconsTop = id('toggleIconsTop');
+        const hamburger = id('hamburger');
+		const toggleView = id('toggleView');
+		var isDragging = false;
+
+		var activePage=null;
+		var aPage=null;
+
+		function toggleCompact() {
+            menu.classList.toggle('compact');
+            localStorage.setItem('menuCompact', menu.classList.contains('compact'));
+			setActivPageAlign();
+        }
+
+        function loadMenuSettings() {
+            if (localStorage.getItem('menuCompact') === 'true') {
+                menu.classList.add('compact');
+            }
+            if (localStorage.getItem('menuPosition') === 'top') {
+                menu.classList.add('top');
+				toggleIcons.style.visibility ='hidden';
+            } else {
+                menu.classList.add('left');
+				toggleIcons.style.visibility ='visible';
+            }
+			setActivPageAlign();
+        }
+
+		function setActivPageAlign() {
+			if (activePage!=null) {
+				aPage = id(activePage);
+				if (menu.classList.contains('top')) {
+					aPage.classList.remove('menu-left');
+					aPage.classList.remove('menu-compact-left');
+					aPage.classList.add('menu-top');
+				} else {
+					//hamburger.style.visibility ='hidden';
+					aPage.classList.remove('menu-top');
+					if (menu.classList.contains('compact')) {
+						aPage.classList.remove('menu-left');
+						aPage.classList.add('menu-compact-left');
+					} else {
+						aPage.classList.remove('menu-compact-left');
+						aPage.classList.add('menu-left');
+					}
+				}
+			}
+		}
 
 		// Get the login modal
 		var loginModal = id("pwdModal");
@@ -2140,6 +2330,8 @@ Publish on change on server side is not recommended with this option">tValue aft
 		}
 		
 		function openPage(pageName,elmnt,color) {
+			activePage = pageName;
+			setActivPageAlign();
 			let i, tabContent, tabLinks;	
 			localStorage.pageId=elmnt.id;
 			let thisUrl = new URL(elmnt.href);
@@ -2149,12 +2341,12 @@ Publish on change on server side is not recommended with this option">tValue aft
 				tabContent[i].style.display = "none";
 			}
 			tabLinks = document.getElementsByClassName("tabLink");
-			for (i = 0; i < tabLinks.length; i++) {
+			/*for (i = 0; i < tabLinks.length; i++) {
 				tabLinks[i].style.backgroundColor = "";
-			}
+			}*/
 			if (showThisTab(pageName)===true) {
 				id(pageName).style.display = "block";
-				elmnt.style.backgroundColor = color;
+			//	elmnt.style.backgroundColor = color;
 			}
 		}
 				
@@ -2218,6 +2410,8 @@ Publish on change on server side is not recommended with this option">tValue aft
 		}
 		
 		async function OnStart() {
+			generateMenuOnClick();
+			loadMenuSettings();
 			stmLoaded=false;
 			setTimeout(function() {
 					checkStmTimeOut();	
@@ -3282,6 +3476,66 @@ Publish on change on server side is not recommended with this option">tValue aft
 			});
 		}
 		
+		function setMenuTop() {
+			menu.classList.remove('left');
+			menu.classList.add('top');
+			localStorage.setItem('menuPosition', 'top');
+		}
+
+		function setMenuLeft() {
+			menu.classList.remove('top');
+			menu.classList.add('left');
+			localStorage.setItem('menuPosition', 'left');
+		}
+
+		function generateMenuOnClick() {
+			toggleIcons.addEventListener('click', toggleCompact);
+			toggleIconsTop.addEventListener('click', toggleCompact);
+			hamburger.addEventListener('click', () => {
+            	menu.classList.toggle('active');
+        	});
+			toggleView.addEventListener('click', () => {
+				if (menu.classList.contains('top')) {
+					setMenuLeft();
+				} else {
+					setMenuTop();
+				}
+				loadMenuSettings();
+        	});
+			
+			menu.addEventListener('mousedown', (event) => {
+				isDragging = true;
+				event.preventDefault();
+				// Add listeners to the document
+				document.addEventListener('mousemove', handleMouseMove);
+				document.addEventListener('mouseup', handleMouseUp);
+			});
+		}
+
+		function handleMouseMove(event) {
+			if (!isDragging) return;
+			event.preventDefault();
+			document.documentElement.style.cursor = 'grab';
+			const distanceToTop = event.clientY;
+			const distanceToLeft = event.clientX;
+			if (distanceToTop < distanceToLeft) {
+				setMenuTop();
+			} else {
+				setMenuLeft();
+				toggleIcons.style.visibility ='visible';
+			}
+			setActivPageAlign();
+		}
+
+		function handleMouseUp() {
+			if (!isDragging) return;
+			isDragging = false;
+			document.documentElement.style.cursor = 'default';
+			// Remove listeners from the document
+			document.removeEventListener('mousemove', handleMouseMove);
+			document.removeEventListener('mouseup', handleMouseUp);
+		}
+
 		async function testPushOver(){
 			let testPO={};
 			testPO.appToken = id("cfgPushOverAPIToken").value;
@@ -3790,33 +4044,24 @@ Publish on change on server side is not recommended with this option">tValue aft
 			if (scanWifiActive===true) await getSSIDInfo();
 		}
 		
-		function showHomeWarningIcon(homeWarning,minStmVersion)
+		function showHomeWarningIcon(homeWarning,minStmVersion,stmFailed)
 		{
 			if (homeWarning == 0) {
-				id("homeImg").style.visibility="hidden";
+				id("homeImg").style.display = "none";
 				id("homeImg").src=tabImageSrc[0];
 				id("sysSTM32-Info").style.visibility="hidden";
 			} else {
-				id("homeImg").style.visibility="visible";
+				id("homeImg").style.removeProperty("display");
 				id("homeImg").src=tabImageSrc[2];
-				id("sysSTM32-Info").style.visibility="visible";
-				id("sysSTM32-Info").style.background="red";
-				id("sysSTM32-InfoText").textContent="Stm32 version incompatible, min. version should be "+minStmVersion+". Please update STM32";
-			}
-		}
-
-		function showStmFailedWarningIcon(stmFailed)
-		{
-			if (stmFailed == 0) {
-				id("homeImg").style.visibility="hidden";
-				id("homeImg").src=tabImageSrc[0];
-				id("sysSTM32-Error").style.visibility="hidden";
-			} else {
-				id("homeImg").style.visibility="visible";
-				id("homeImg").src=tabImageSrc[2];
-				id("sysSTM32-Error").style.visibility="visible";
-				id("sysSTM32-Error").style.background="red";
-				id("sysSTM32-ErrorText").textContent="Stm32 not responding ! Try reset.";
+				if (stmFailed===true) {
+					id("sysSTM32-Error").style.visibility="visible";
+					id("sysSTM32-Error").style.background="red";
+					id("sysSTM32-ErrorText").textContent="Stm32 not responding ! Try reset.";
+				} else {
+					id("sysSTM32-Info").style.visibility="visible";
+					id("sysSTM32-Info").style.background="red";
+					id("sysSTM32-InfoText").textContent="Stm32 version incompatible, min. version should be "+minStmVersion+". Please update STM32";
+				}
 			}
 		}
 
@@ -3965,7 +4210,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 			let statusWarning = 0;
 			if (valveWarnLevel>0) statusWarning=valveWarnLevel;
 			if (tempWarning || sensorWarning) statusWarning = 2;
-			if (statusWarning == 0) id("statusImg").style.visibility="hidden"; else id("statusImg").style.visibility="visible";
+			if (statusWarning == 0) id("statusImg").style.display = "none"; else id("statusImg").style.removeProperty("display");
 			id("statusImg").src=tabImageSrc[statusWarning];	
 		}
 		
@@ -4291,7 +4536,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 				id("wt32-ChipStack").textContent = dataSystemInfo["wt32ChipStack"]+" bytes";
 				id("sysSTM32-Version").textContent = dataSystemInfo["stm32version"];
 				id("sysSTM32-ChipId").textContent = dataSystemInfo["stm32ChipId"];
-				showHomeWarningIcon(dataSystemInfo["stm32VFalse"],dataSystemInfo["stm32MinReq"]);
+				showHomeWarningIcon(dataSystemInfo["stm32VFalse"],dataSystemInfo["stm32MinReq"],false);
 			}
 		}
 		
@@ -4345,7 +4590,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 					}
 				}
 				if (dataSystemDynInfo["stmFailed"]===1) {
-					showStmFailedWarningIcon(dataSystemDynInfo["stmFailed"]);
+					showHomeWarningIcon(dataSystemDynInfo["stmFailed"],0,dataSystemDynInfo["stmFailed"]===1);
 				}
 			}
 		}

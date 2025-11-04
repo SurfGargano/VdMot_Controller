@@ -159,20 +159,41 @@ void CVdmNet::setupEth()
     switch (ethState) {
       case ethIdle :
       {  
+        #ifdef netDebug
+          UART_DBG.println("setupEth : WT32_ETH01_onEvent ");
+        #endif
         WT32_ETH01_onEvent();
+        ethState=ethBegin;
+        checkETHCounter=0;
+        ethResetCounter=0;
+        break;
+      }
+      case ethBegin :
+      {
+        #ifdef netDebug
+          UART_DBG.println("setupEth : ETH.begin ");
+        #endif
         ETH.begin(ETH_PHY_ADDR, ETH_PHY_POWER);
         ethState=ethConfig;
+        #ifdef netDebug
+          UART_DBG.println("setupEth : state ethIdle done  ");
+        #endif
         break;
       }
       case ethConfig :
       {
+        #ifdef netDebug
+          UART_DBG.println("Eth ethConfig");
+        #endif
         if (VdmConfig.configFlash.netConfig.dhcpEnabled==0) {
           ETH.config(VdmConfig.configFlash.netConfig.staticIp, 
           VdmConfig.configFlash.netConfig.gateway, 
           VdmConfig.configFlash.netConfig.mask,VdmConfig.configFlash.netConfig.dnsIp);
         }
-        if (strlen(VdmConfig.configFlash.systemConfig.stationName)>0) ETH.setHostname(VdmConfig.configFlash.systemConfig.stationName);
         ethState=ethIsStarting;
+        #ifdef netDebug
+          UART_DBG.println("Eth ethConfig done");
+        #endif
         break;
       }
       case ethIsStarting :
@@ -186,8 +207,6 @@ void CVdmNet::setupEth()
           UART_DBG.println(String(ETH.localIP()));
         #endif
         if (WT32_ETH01_isConnected() && ((uint32_t) ETH.localIP()!=0)) {
-          checkETHCounter=0;
-          ethResetCounter=0;
           networkInfo.interfaceType=currentInterfaceIsEth;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
           networkInfo.ip=ETH.localIP();
@@ -195,15 +214,24 @@ void CVdmNet::setupEth()
           networkInfo.dnsIp=ETH.dnsIP();
           networkInfo.mask=ETH.subnetMask();
           networkInfo.mac=ETH.macAddress();
+          #ifdef netDebug
+            UART_DBG.println("Eth ethIsStarting: set host name");
+          #endif
+          if (strlen(VdmConfig.configFlash.systemConfig.stationName)>0) ETH.setHostname(VdmConfig.configFlash.systemConfig.stationName);
           wifiState=wifiDisabled; 
           WiFi.disconnect(); 
           ethState=ethStarted;
         } else {
+           #ifdef netDebug
+              UART_DBG.print("Eth IsStarting : checkETHCounter = ");
+              UART_DBG.println(String(checkETHCounter)+"ethResetCounter = "+String(ethResetCounter));
+            #endif
           if (++checkETHCounter>30) {
             #ifdef netDebug
-              UART_DBG.println("Eth IsStarting : go to idle ");
+              UART_DBG.println("Eth IsStarting : go to begin ");
             #endif
-            ethState=ethIdle; 
+            checkETHCounter=0;
+            ethState=ethBegin; 
             if (VdmConfig.configFlash.netConfig.timeOutNetConnection>0) {
               if (++ethResetCounter>=VdmConfig.configFlash.netConfig.timeOutNetConnection) {
                 Services.restartSystem(false);

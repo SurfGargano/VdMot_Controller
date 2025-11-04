@@ -44,6 +44,8 @@
 #include <map>
 #include "globals.h"
 #include "VdmTask.h"
+
+
 /*
 const char *PUSHOVER_ROOT_CA = "-----BEGIN CERTIFICATE-----\n"
 							   "MIIDrzCCApegAwIBAgIQCDvgVpBCRrGhdWrJWZHHSjANBgkqhkiG9w0BAQUFADBh\n"
@@ -152,7 +154,7 @@ int CPushover::send(CPushoverMessage newMessage)
 	beginResult = myClient.begin(client,PUSHOVER_API_URL);
 	myClient.addHeader("Content-Type", "application/json");
 	myClient.addHeader("Connection","close");
-	StaticJsonDocument<512> doc;
+	DynamicJsonDocument doc(1024);
 	std::map<const char *, const char *>::iterator it = messageData.begin();
 	while(it!=messageData.end()){
 		doc[it->first] = it->second;
@@ -166,7 +168,7 @@ int CPushover::send(CPushoverMessage newMessage)
     }
 	responseCode = myClient.POST(postmessage);
 	myClient.end();
-	
+	doc.clear();
 	return responseCode;
 }
 
