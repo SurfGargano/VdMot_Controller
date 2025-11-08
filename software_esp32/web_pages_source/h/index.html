@@ -7,61 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-	body {
-	  font-family: sans-serif;
-	  margin:0;
-	}
-	/* Add a black background color to the top navigation */
-	.topNav {
-		background-color: #333;
-		overflow: hidden;
-	}
-
-	/* Style the links inside the navigation bar */
-	.topNav a {
-		float: left;
-		display: block;
-		color: #f2f2f2;
-		text-align: center;
-		padding: 14px 16px;
-		text-decoration: none;
-		font-size: 17px;
-	}
-
-	/* Change the color of links on hover */
-	.topNav a:hover {
-		background-color: #ddd;
-		color: black;
-	}
-
-	/* Hide the link that should open and close the topNav on small screens */
-	.topNav .icon {
-		display: none;
-	}
-
-	/* When the screen is less than 600 pixels wide, hide all links, except for the first one ("Home"). Show the link that contains should open and close the topNav (.icon) */
-	@media screen and (max-width: 600px) {
-	  .topNav a:not(:first-child) {display: none;}
-	  .topNav a.icon {
-		float: right;
-		display: block;
-	  }
-	}
-
-	/* The "responsive" class is added to the topNav with JavaScript when the user clicks on the icon. This class makes the topNav look good on small screens (display the links vertically instead of horizontally) */
-	@media screen and (max-width: 600px) {
-	  .topNav.responsive {position: relative;}
-	  .topNav.responsive a.icon {
-		position: absolute;
-		right: 0;
-		top: 0;
-	  }
-	  .topNav.responsive a {
-		float: none;
-		display: block;
-		text-align: left;
-	  }
-	}
 	
 	/* Style the tab content (and add height:100% for full page content) */
 	.tabContent {
@@ -494,36 +439,36 @@
 
 	/* slider checkbox */ 
 	[type="checkbox"] {
-	--s:18px; /* adjust this to control the size*/
-	position: relative; 
-  	top: .3em;
-	height:var(--s);
-	aspect-ratio:2/1;
-	padding:calc(var(--s)/5);
-	border-radius:var(--s);
-	background:
-		radial-gradient(farthest-side,#fafafa 85%,#0005,#0000) left/var(--s) 100% no-repeat,
-		/*linear-gradient(90deg,#20b68f 50%,#939393 0) right/200% 100% content-box;*/
-		linear-gradient(90deg,#79B935 50%,#939393 0) right/200% 100% content-box;
-	transition:0.5s;
-	-webkit-appearance:none;
-	-moz-appearance:none;
-	appearance:none;
-	cursor:pointer;
+		--s:18px; /* adjust this to control the size*/
+		position: relative; 
+		top: .3em;
+		height:var(--s);
+		aspect-ratio:2/1;
+		padding:calc(var(--s)/5);
+		border-radius:var(--s);
+		background:
+			radial-gradient(farthest-side,#fafafa 85%,#0005,#0000) left/var(--s) 100% no-repeat,
+			/*linear-gradient(90deg,#20b68f 50%,#939393 0) right/200% 100% content-box;*/
+			linear-gradient(90deg,#79B935 50%,#939393 0) right/200% 100% content-box;
+		transition:0.5s;
+		-webkit-appearance:none;
+		-moz-appearance:none;
+		appearance:none;
+		cursor:default;
 	}
 
 	[type="checkbox"]:checked {
-	background-position:right,left;
+		background-position:right,left;
 	}
 
 	[type="text"],[type="number"],[type="password"] {
-	border-radius:5px; 
-	background:	white;
-	border: thin solid lightgray;
-	-webkit-appearance:none;
-	-moz-appearance:none;
-	appearance:none;
-	cursor:pointer;
+		border-radius:5px; 
+		background:	white;
+		border: thin solid lightgray;
+		-webkit-appearance:none;
+		-moz-appearance:none;
+		appearance:none;
+		cursor:default;
 	}
 	[type="text"]:focus,[type="number"]:focus,[type="password"]:focus {
 		outline-color : green;
@@ -534,22 +479,21 @@
 	}
 
 	select {
+		/* styling */
+		background-color: white;
+		border: thin solid lightgray;
+		border-radius: 5px;
+		display: inline-block;
+		line-height: 1.0em;
+		padding: 0.2em 1.5em 0.2em 0.1em;
 
-	/* styling */
-	background-color: white;
-	border: thin solid lightgray;
-	border-radius: 5px;
-	display: inline-block;
-	line-height: 1.0em;
-	padding: 0.2em 1.5em 0.2em 0.1em;
-
-	/* reset */
-	margin: 0;      
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	-webkit-appearance: none;
-	-moz-appearance: none;
+		/* reset */
+		margin: 0;      
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		box-sizing: border-box;
+		-webkit-appearance: none;
+		-moz-appearance: none;
 	}
 
 
@@ -597,6 +541,8 @@
 	}
 
 	body {
+		font-family: sans-serif;
+	  	margin:0;
 		background:gray;
 	}
 
@@ -659,7 +605,7 @@ summary {
   background: #575656;
   padding-left: 2.0rem;
   position: relative;
-  cursor: pointer;
+  cursor: default;
   user-select: none;
 }
 
@@ -2253,6 +2199,11 @@ Publish on change on server side is not recommended with this option">tValue aft
 			setActivPageAlign();
         }
 
+		function setMenuDefault() {
+			if (localStorage.getItem('menuPosition') === null)  setMenuTop();
+			if (localStorage.getItem('menuCompact') === null)  localStorage.setItem('menuCompact','false');
+		}
+
         function loadMenuSettings() {
             if (localStorage.getItem('menuCompact') === 'true') {
                 menu.classList.add('compact');
@@ -2411,6 +2362,7 @@ Publish on change on server side is not recommended with this option">tValue aft
 		
 		async function OnStart() {
 			generateMenuOnClick();
+			setMenuDefault();
 			loadMenuSettings();
 			stmLoaded=false;
 			setTimeout(function() {

@@ -200,13 +200,14 @@ void CVdmNet::setupEth()
       {
         #ifdef netDebug
           UART_DBG.print("Eth IsStarting : Eth cable connected = ");
-          UART_DBG.print(String(WT32_ETH01_isConnected()));
+          UART_DBG.print(String(ETH.linkUp()));
           UART_DBG.print(" EIP= ");
           UART_DBG.print(ETH.localIP().toString());
           UART_DBG.print(":");
           UART_DBG.println(String(ETH.localIP()));
         #endif
-        if (WT32_ETH01_isConnected() && ((uint32_t) ETH.localIP()!=0)) {
+        
+        if (ETH.linkUp() && ((uint32_t) ETH.localIP()!=0)) {
           networkInfo.interfaceType=currentInterfaceIsEth;
           networkInfo.dhcpEnabled=VdmConfig.configFlash.netConfig.dhcpEnabled;
           networkInfo.ip=ETH.localIP();
