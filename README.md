@@ -69,5 +69,8 @@ For details please see [software.md](./software.md)
 Latest Software can be found here :
 https://github.com/SurfGargano/VdMot_Controller/releases/latest
 
+Hardware can be found here:
+**Hardware for VdMot_Controller is available via mail. Please write to vdmot@storbecknet.de. **
+
 ## License
 This project is licensed under the terms of the GNU General Public License v3.0 license.
