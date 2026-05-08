@@ -204,7 +204,7 @@ int16_t communication_loop (void) {
         {           
             if(buffer[c] == '\n') 
             {
-				if(buffer[c-1]=='\r') buffer[c-1] = '\0';
+				if(c > 0 && buffer[c-1]=='\r') buffer[c-1] = '\0';
                 else buffer[c] = '\0';
                 //COMM_SER.print("recv "); COMM_SER.println(buffer);
                 found = 1;
