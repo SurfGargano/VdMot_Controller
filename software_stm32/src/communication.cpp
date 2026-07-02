@@ -404,9 +404,9 @@ int16_t communication_loop (void) {
 
 			for (uint8_t xx=0;xx<ACTUATOR_COUNT;xx++) {
 				memset(sendbuffer,0x0,sizeof(sendbuffer));
-				itoa(myvalvemots[xx].status, sendbuffer, 10);				
+				itoa(myvalvemots[xx].status, sendbuffer, 10);
 				COMM_SER.print(sendbuffer);
-				if (x<ACTUATOR_COUNT-1) COMM_SER.print(",");
+				if (xx<ACTUATOR_COUNT-1) COMM_SER.print(",");
 			}	
 			COMM_SER.println(" ");
 		}
