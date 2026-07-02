@@ -533,8 +533,7 @@ void  CStmApp::app_check_data()
                     actuators[idx].state = (val8 & 0x7f);
                     actuators[idx].calibration =  (val8>=0x80);
                     if (cmdptr!=NULL) ps=cmdptr+1;
-                    idx++;
-                }  
+                }
                 stmStatus=STM_READ_ALL_FROM_QUEUE;  
                 if (stmInitState==STM_INIT_STARTED) stmInitState=STM_INIT_FINISHED ;
             }
